@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update User details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+        }
+        input[type="submit"],
+        input[type="button"] {
+            width: 48%;
+            background-color: #4caf50;
+            color: white;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover,
+        input[type="button"]:hover {
+            background-color: #45a049;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        button{
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+        }
+        button{
+            float: right;
+            width: 10%;
+            
+            background-color: #d33013;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head> 
+<body>
+    <h2>Update User details</h2>
+    <a href="/valadmin"><button>Close</button></a>
+
+    <form action="/update/{{.}}" method="post">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" placeholder="Enter your name" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+        <div class="button-container">
+           
+            <input type="submit" value="Save">
+        </div>
+    </form>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disaster Report</title>
+    <!-- Include Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <!-- Include necessary CSS stylesheets -->
+    <style>
+        /* Basic CSS styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            background-image: url(https://images.pexels.com/photos/355770/pexels-photo-355770.jpeg?auto=compress&cs=tinysrgb&w=7200);
+            background-position: 100%;
+            background-size: cover;
+
+        }
+        .container {
+            width: 600px;
+            height:800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.26);
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            font-weight: 600;
+          text-shadow: 0 0 10px rgba(255, 255, 255, 0.0005); 
+          backdrop-filter: blur(5px);
+        }
+        h1, h2, h3, h4, h5, h6 {
+            color: #333;
+        }
+        #map {
+            height: 200px;
+            margin-bottom: 20px;
+        }
+        form {
+            margin-top: 20px;
+        }
+        form label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        form input, form select, form textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ffffff;
+            border-radius: 4px;
+            box-sizing: border-box;
+            backdrop-filter: blur(5px);
+        }
+        form button {
+            background-color: #4c56af;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        form button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+   
+
+    <div class="container">
+        <h1>Disaster Report</h1>
+        <!-- Form for disaster report -->
+        <form id="reportForm" method="post" action="/api/ReportDisaster">
+            <!-- <form id="reportForm" method="post"> -->
+            <label for="latitude">Latitude:</label>
+            <input type="text" id="latitude" name="Latitude" required>
+
+            <label for="longitude">Longitude:</label>
+            <input type="text" id="longitude" name="longitude" required>
+
+            <label for="DisasterType">Type of Disaster:</label>
+            <select id="DisasterType" name="DisasterType" required>
+                <option value="flood">Flood</option>
+                <option value="fire">Fire</option>
+                <option value="hurricane">Hurricane</option>
+                <option value="tornado">Tornado</option>
+                <option value="Tsunami">Tsunami</option>
+                <option value="Wildfire">Wildfire</option>
+                <option value="Volcanic-Eruption">Volcanic Eruption</option>
+                <option value="Avalanche">Avalanche</option>
+                <option value="Landslide">Landslide</option>
+                <option value="Drought">Drought</option>
+                <option value="Blizzard">Blizzard</option>
+                <option value="Heatwave">Heatwave</option>
+                <option value="Cyclone">Cyclone</option>
+                <option value="Ice Storm">Ice Storm</option>
+                <option value="Hailstorm">Hailstorm</option>
+                <option value="Sinkhole">Sinkhole</option>
+                <option value="Dust-Storm">Dust Storm</option>
+                <option value="Mudslide">Mudslide</option>
+                <option value="Nuclear">Nuclear Accident</option>
+                <option value="Chemical">Chemical Spill</option>
+                <option value="Biological">Biological outbreak</option>
+                <option value="Terrorist">Terrorist Attack</option>
+                <option value="Power">Power Outrage</option>
+                <option value="Infrastructure">Infrastructure Collapse</option>
+                <option value="Building">Building Collapse</option>
+                <option value="Shipwreck">Shipwreck</option>
+                <option value="Plane">Plane crash</option>
+                <option value="Train">Train Derailment</option>
+                <option value="Oil">Oil Spill</option>
+                <option value="Gas">Gas Explosion</option>
+                <option value="Mine">Mine Collapse</option>
+                <option value="Riot">Riot</option>
+                <option value="Civil">Civil Unrest</option>
+                <option value="Mass">Mass Shooting</option>
+                <option value="Cyberattack">Cyberattack</option>
+                <option value="Economic">Economic Collapse</option>
+                <option value="Food">Food Shortage</option>
+                <option value="Water">Water Contamination</option>
+                <option value="Disease">Disease Outbreak(pandemic)</option>
+                <option value="earthquake">Earthquake</option>
+                
+            </select>
+
+            <label for="severity">Severity:</label>
+            <select id="severity" name="severity" required>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <!-- Add more options as needed -->
+            </select>
+            <label for="fileType">Select File Type:</label>
+<select id="fileType" name="fileType">
+    <option value="photo">Photo</option>
+    <option value="video">Video</option>
+</select>
+
+<div id="fileInput">
+    <label for="file">Upload File:</label>
+    <input type="file" id="file" name="file">
+</div>
+
+            <label for="description">Additional Description:</label>
+            <textarea id="description" name="description" rows="4"></textarea>
+
+            <button type="submit">Submit Report</button>
+        </form>
+
+        <!-- Map placeholder -->
+        <div id="map"></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <script>
+      
+     // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+    apiKey: "AIzaSyBgmRv1ModphgqOxqy0cBzddS47UvOuZiw",
+  authDomain: "disaster-management-416906.firebaseapp.com",
+  projectId: "disaster-management-416906",
+  storageBucket: "disaster-management-416906.appspot.com",
+  messagingSenderId: "789882563914",
+  appId: "1:789882563914:web:3912909e7e5ae27c1b25b3",
+  measurementId: "G-0S5JY8MF65"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+// Your existing JavaScript code
+
+document.getElementById('reportForm').addEventListener('submit', function(event) {
+// const submitted = (e) => {
+    console.log("here")
+    event.preventDefault(); // Prevent default form submission
+    
+    // Get form values
+    var latitude = document.getElementById('Latitude').value;
+    var longitude = document.getElementById('longitude').value;
+    var disasterType = document.getElementById('DisasterType').value; // Corrected ID
+    var severity = document.getElementById('severity').value;
+    var description = document.getElementById('description').value;
+    var fileType = document.getElementById('fileType').value;
+
+    var fileInput = document.getElementById('file');
+    var file = fileInput.files[0]; // Get the selected file
+
+    if (!file) {
+        console.error('No file selected');
+        return;
+    }
+
+    {console.log("file type ==> ", file)}
+
+    // Storage reference for uploading the file
+    var storageRef = storage.ref('files/' + file.name);
+
+    // Upload the file to Firebase Storage
+    var uploadTask = storageRef.put(file);
+
+    uploadTask.on('state_changed', 
+      function(snapshot){
+        // Track upload progress
+      }, 
+      function(error) {
+        // Handle unsuccessful uploads
+        console.error('Error uploading file:', error);
+      }, 
+      function() {
+        // Handle successful uploads on complete
+        uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+            // File uploaded successfully, now submit other form data and the download URL to your backend
+            var formData = {
+                latitude: latitude,
+                longitude: longitude,
+                DisasterType: disasterType, // Corrected key name
+                severity: severity,
+                description: description,
+                fileURL: downloadURL, // Add the download URL of the uploaded file to the form data
+                fileType: fileType
+            };
+
+            // Send data to the server
+            fetch('/api/save-report', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data); // Log the response
+                // Add a marker to the map
+                var marker = L.marker([latitude, longitude]).addTo(map);
+
+                // Add a popup to the marker with report details
+                var popupContent = "<b>Disaster Type:</b> " + disasterType + "<br><b>Severity:</b> " + severity + "<br><b>Description:</b> " + description;
+                
+                if (fileType === 'photo') {
+                    popupContent += "<br><img src='" + downloadURL + "' width='200' height='auto'>";
+                } else if (fileType === 'video') {
+                    popupContent += "<br><video controls><source src='" + downloadURL + "' type='video/mp4'></video>";
+                }
+
+                marker.bindPopup(popupContent).openPopup();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+      }
+    );
+});
+    // }
+
+
+    </script>
+</body>
+</html>

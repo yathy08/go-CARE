@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer Application Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            background-image: url(https://images.pexels.com/photos/11022648/pexels-photo-11022648.jpeg?auto=compress&cs=tinysrgb&w=2100);
+            background-size: cover;
+            background-position: 100%;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: red;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Volunteer Application Form</h1>
+        <form id="volunteerForm">
+            <label for="name">Your Name:</label>
+            <input type="text" id="name" name="name" placeholder="Enter your full name">
+
+            <label for="city">Your City:</label>
+            <input type="text" id="city" name="city" placeholder="Enter your city">
+
+            <label for="mobile">Mobile Number:</label>
+            <input type="text" id="mobile" name="mobile_number" placeholder="Enter your mobile number">
+
+            <button type="submit">Submit Application</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("volunteerForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            var name = document.getElementById("name").value.trim();
+            var city = document.getElementById("city").value.trim();
+            var mobile = document.getElementById("mobile").value.trim();
+
+            if (name === "" || city === "" || mobile === "") {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append("name", name);
+            formData.append("city", city);
+            formData.append("mobile_number", mobile);
+
+            fetch("/api/submit-volunteerform", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                document.getElementById("volunteerForm").reset();
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Failed to submit volunteer form");
+            });
+        });
+    </script>
+</body>
+</html>
