@@ -73,58 +73,20 @@
     <div class="container">
         <h1>Disaster Report</h1>
         <!-- Form for disaster report -->
-        <form id="reportForm" method="post" action="/api/ReportDisaster">
+        <form id="reportForm">
             <!-- <form id="reportForm" method="post"> -->
             <label for="latitude">Latitude:</label>
             <input type="text" id="latitude" name="Latitude" required>
 
-            <label for="longitude">Longitude:</label>
+            <label ongitufor="lde">Longitude:</label>
             <input type="text" id="longitude" name="longitude" required>
 
-            <label for="DisasterType">Type of Disaster:</label>
-            <select id="DisasterType" name="DisasterType" required>
-                <option value="flood">Flood</option>
-                <option value="fire">Fire</option>
-                <option value="hurricane">Hurricane</option>
-                <option value="tornado">Tornado</option>
-                <option value="Tsunami">Tsunami</option>
-                <option value="Wildfire">Wildfire</option>
-                <option value="Volcanic-Eruption">Volcanic Eruption</option>
-                <option value="Avalanche">Avalanche</option>
-                <option value="Landslide">Landslide</option>
-                <option value="Drought">Drought</option>
-                <option value="Blizzard">Blizzard</option>
-                <option value="Heatwave">Heatwave</option>
-                <option value="Cyclone">Cyclone</option>
-                <option value="Ice Storm">Ice Storm</option>
-                <option value="Hailstorm">Hailstorm</option>
-                <option value="Sinkhole">Sinkhole</option>
-                <option value="Dust-Storm">Dust Storm</option>
-                <option value="Mudslide">Mudslide</option>
-                <option value="Nuclear">Nuclear Accident</option>
-                <option value="Chemical">Chemical Spill</option>
-                <option value="Biological">Biological outbreak</option>
-                <option value="Terrorist">Terrorist Attack</option>
-                <option value="Power">Power Outrage</option>
-                <option value="Infrastructure">Infrastructure Collapse</option>
-                <option value="Building">Building Collapse</option>
-                <option value="Shipwreck">Shipwreck</option>
-                <option value="Plane">Plane crash</option>
-                <option value="Train">Train Derailment</option>
-                <option value="Oil">Oil Spill</option>
-                <option value="Gas">Gas Explosion</option>
-                <option value="Mine">Mine Collapse</option>
-                <option value="Riot">Riot</option>
-                <option value="Civil">Civil Unrest</option>
-                <option value="Mass">Mass Shooting</option>
-                <option value="Cyberattack">Cyberattack</option>
-                <option value="Economic">Economic Collapse</option>
-                <option value="Food">Food Shortage</option>
-                <option value="Water">Water Contamination</option>
-                <option value="Disease">Disease Outbreak(pandemic)</option>
-                <option value="earthquake">Earthquake</option>
-                
-            </select>
+            <label for="disasterType">Type of Disaster:</label>
+            <select id="disasterType" name="disasterType" required>
+                {{range .Disasters}}
+                <option value="{{.ID}}">{{.Name}}</option>
+            {{end}}
+        </select>
 
             <label for="severity">Severity:</label>
             <select id="severity" name="severity" required>
@@ -135,7 +97,7 @@
             </select>
             <label for="fileType">Select File Type:</label>
 <select id="fileType" name="fileType">
-    <option value="photo">Photo</option>
+    <option selected value="photo">Photo</option>
     <option value="video">Video</option>
 </select>
 
@@ -154,41 +116,41 @@
         <div id="map"></div>
     </div>
 
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script type="module">
+        // Import the Firebase SDK modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-analytics.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
+        import { getStorage } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js';
+    
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBgmRv1ModphgqOxqy0cBzddS47UvOuZiw",
+            authDomain: "disaster-management-416906.firebaseapp.com",
+            projectId: "disaster-management-416906",
+            storageBucket: "disaster-management-416906.appspot.com",
+            messagingSenderId: "789882563914",
+            appId: "1:789882563914:web:3912909e7e5ae27c1b25b3",
+            measurementId: "G-0S5JY8MF65"
+        };
+    
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const firestore = getFirestore(app);
+        const storage = getStorage(app); 
+        // Your other JavaScript code here
 
-    <script>
-      
-     // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-    apiKey: "AIzaSyBgmRv1ModphgqOxqy0cBzddS47UvOuZiw",
-  authDomain: "disaster-management-416906.firebaseapp.com",
-  projectId: "disaster-management-416906",
-  storageBucket: "disaster-management-416906.appspot.com",
-  messagingSenderId: "789882563914",
-  appId: "1:789882563914:web:3912909e7e5ae27c1b25b3",
-  measurementId: "G-0S5JY8MF65"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-
-// Your existing JavaScript code
-
-document.getElementById('reportForm').addEventListener('submit', function(event) {
+        document.getElementById('reportForm').addEventListener('submit', function(event) {
 // const submitted = (e) => {
-    console.log("here")
     event.preventDefault(); // Prevent default form submission
     
     // Get form values
-    var latitude = document.getElementById('Latitude').value;
+    var latitude = document.getElementById('latitude').value;
     var longitude = document.getElementById('longitude').value;
-    var disasterType = document.getElementById('DisasterType').value; // Corrected ID
+    var disasterType = document.getElementById('disasterType').value; // Corrected ID
     var severity = document.getElementById('severity').value;
     var description = document.getElementById('description').value;
     var fileType = document.getElementById('fileType').value;
@@ -201,9 +163,63 @@ document.getElementById('reportForm').addEventListener('submit', function(event)
         return;
     }
 
-    {console.log("file type ==> ", file)}
+            // const formData = {
+            //     latitude: latitude,
+            //     longitude: longitude,
+            //     DisasterType: disasterType, // Corrected key name
+            //     severity: severity,
+            //     description: description,
+            //     fileURL: 'downloadURL', // Add the download URL of the uploaded file to the form data
+            //     fileType: fileType
+            // }
+
+            var formData = new FormData();
+
+            // Append form data to FormData object
+            formData.append('latitude', latitude);
+            formData.append('longitude', longitude);
+            formData.append('disasterType', disasterType);
+            formData.append('severity', severity);
+            formData.append('description', description);
+            formData.append('fileType', fileType);
+            //formData.append('file', file);
+
+            // Send data to the server
+            fetch('/api/save-report', {
+                method: 'POST',
+                body: formData,
+            }) 
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('data', data); // Log the response
+                // Add a marker to the map
+                return;
+                var marker = L.marker([latitude, longitude]).addTo(map);
+
+                // Add a popup to the marker with report details
+                var popupContent = "<b>Disaster Type:</b> " + disasterType + "<br><b>Severity:</b> " + severity + "<br><b>Description:</b> " + description;
+                
+                if (fileType === 'photo') {
+                    popupContent += "<br><img src='" + downloadURL + "' width='200' height='auto'>";
+                } else if (fileType === 'video') {
+                    popupContent += "<br><video controls><source src='" + downloadURL + "' type='video/mp4'></video>";
+                }
+
+                marker.bindPopup(popupContent).openPopup();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+            
+            return undefined;
 
     // Storage reference for uploading the file
+
     var storageRef = storage.ref('files/' + file.name);
 
     // Upload the file to Firebase Storage
@@ -268,8 +284,133 @@ document.getElementById('reportForm').addEventListener('submit', function(event)
       }
     );
 });
-    // }
+    </script>
 
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <script>
+      
+
+// document.getElementById('reportForm').addEventListener('submit', function(event) {
+// // const submitted = (e) => {
+//     console.log("here")
+//     event.preventDefault(); // Prevent default form submission
+    
+//     // Get form values
+//     var latitude = document.getElementById('latitude').value;
+//     var longitude = document.getElementById('longitude').value;
+//     var disasterType = document.getElementById('disasterType').value; // Corrected ID
+//     var severity = document.getElementById('severity').value;
+//     var description = document.getElementById('description').value;
+//     var fileType = document.getElementById('fileType').value;
+
+//     var fileInput = document.getElementById('file');
+//     var file = fileInput.files[0]; // Get the selected file
+
+//     if (!file) {
+//         console.error('No file selected');
+//         return;
+//     }
+
+//     {console.log("file type ==> ", file)}
+//     console.log(firestore)
+//     // Storage reference for uploading the file
+//     var storageRef = storage.ref('files/' + file.name);
+
+//     // Upload the file to Firebase Storage
+//     var uploadTask = storageRef.put(file);
+
+//     uploadTask.on('state_changed', 
+//       function(snapshot){
+//         // Track upload progress
+//       }, 
+//       function(error) {
+//         // Handle unsuccessful uploads
+//         console.error('Error uploading file:', error);
+//       }, 
+//       function() {
+//         // Handle successful uploads on complete
+//         uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+//             // File uploaded successfully, now submit other form data and the download URL to your backend
+//             var formData = {
+//                 latitude: latitude,
+//                 longitude: longitude,
+//                 DisasterType: disasterType, // Corrected key name
+//                 severity: severity,
+//                 description: description,
+//                 fileURL: downloadURL, // Add the download URL of the uploaded file to the form data
+//                 fileType: fileType
+//             };
+
+//             // Send data to the server
+//             fetch('/api/save-report', {
+//                 method: 'POST',
+//                 headers: {
+//                     'Content-Type': 'application/json'
+//                 },
+//                 body: JSON.stringify(formData)
+//             })
+//             .then(response => {
+//                 if (!response.ok) {
+//                     throw new Error('Network response was not ok');
+//                 }
+//                 return response.json();
+//             })
+//             .then(data => {
+//                 console.log(data); // Log the response
+//                 // Add a marker to the map
+//                 var marker = L.marker([latitude, longitude]).addTo(map);
+
+//                 // Add a popup to the marker with report details
+//                 var popupContent = "<b>Disaster Type:</b> " + disasterType + "<br><b>Severity:</b> " + severity + "<br><b>Description:</b> " + description;
+                
+//                 if (fileType === 'photo') {
+//                     popupContent += "<br><img src='" + downloadURL + "' width='200' height='auto'>";
+//                 } else if (fileType === 'video') {
+//                     popupContent += "<br><video controls><source src='" + downloadURL + "' type='video/mp4'></video>";
+//                 }
+
+//                 marker.bindPopup(popupContent).openPopup();
+//             })
+//             .catch(error => {
+//                 console.error('Error:', error);
+//             });
+//         });
+//       }
+//     );
+// });
+
+// Fetch disaster data from the backend
+fetch('/fetchAllDisasterss')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Handle successful response from the server
+        console.log('Disasters fetched successfully:', data);
+        
+        // Get the select element
+        const select = document.getElementById('disasterType');
+
+        // Clear existing options
+        select.innerHTML = '';
+
+        // Iterate over the fetched disasters and create an option for each
+        data.disasters.forEach(disaster => {
+            const option = document.createElement('option');
+            option.value = disaster.id; // Use an appropriate value for the option
+            option.textContent = disaster.name; // Display the name of the disaster
+            select.appendChild(option);
+        });
+    })
+    .catch(error => {
+        console.error('Error fetching disasters:', error);
+        
+    });
 
     </script>
 </body>

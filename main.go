@@ -63,11 +63,20 @@ func main() {
 	r.POST("/api/submit-volunteerform", routes.SubmitVolunteerForm)
 	r.POST("/api/add-volunteer", routes.AddVolunteer)
 	r.DELETE("/api/delete-volunteer/:name", routes.DeleteVolunteerByName)
-	r.GET("/api/get-volunteers/:name", routes.GetVolunteerByName)
-	r.POST("/api/send-help", routes.SendHelp)
-	r.GET("/getVolunteer", routes.GetVolunteer)
-	r.DELETE("/deleteVolunteer/:id", routes.DeleteVolunteer)
+	// r.GET("/api/get-volunteers/:name", routes.GetVolunteerByName)
 	r.DELETE("/deleteReport/:id", routes.DeleteReport)
+	
+// Define a route to handle GET requests for fetching volunteer details based on city
+    r.GET("/api/volunteer", routes.GetVolunteerByCityHandler)
+
+	// API endpoint to fetch chat messages for a specific user
+	r.GET("/api/chat/:userId", routes.GetUserChatMessagesHandler)
+
+	r.GET("/api/disaster-types", routes.GetDisasterTypesHandler)
+
+	r.POST("/api/chat/:userId", routes.SendMessageHandler)
+	r.DELETE("/api/disaster-report", routes.DeleteDisasterReportHandler)
+	r.GET("/fetchAllDisasterss", routes.GetAllDisasterss)
 
 
 	r.Run(":3000")

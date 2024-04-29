@@ -13,6 +13,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/twilio/twilio-go"
+	twilioApi "github.com/twilio/twilio-go/rest/api/v2010"
 	verify "github.com/twilio/twilio-go/rest/verify/v2"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -311,6 +312,13 @@ func SaveReportToDatabase(report *model.DisasterReport) error {
 }
 
 func PostReportDisaster(c *gin.Context) {
+	fmt.Println(c.Request)
+
+	var datas model.DisasterReport
+
+	fmt.Println(c.Bind(datas))
+
+	fmt.Println(datas)
 	// Parse form data
 	if err := c.Request.ParseForm(); err != nil {
 		fmt.Println(err)
@@ -318,7 +326,9 @@ func PostReportDisaster(c *gin.Context) {
 		return
 	}
 
-	data := c.Request.PostForm
+	data := c.Request.PostForm	
+
+	fmt.Println("data :", data)
 	report := model.DisasterReport{
 		DisasterType: data.Get("DisasterType"),
 		Latitude:     data.Get("Latitude"),
@@ -334,7 +344,8 @@ func PostReportDisaster(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(http.StatusFound, "/")
+	c.JSON(200, gin.H{"message": "saved data"})
+	//c.Redirect(http.StatusFound, "/")
 }
 
 func GetReportDisaster(c *gin.Context) {
@@ -656,104 +667,196 @@ func DeleteVolunteerByName(c *gin.Context) {
 }
 
 // GetVolunteerByName retrieves a volunteer by its name from the database
-func GetVolunteerByName(c *gin.Context) {
-	name := c.Param("name")
-	var volunteer model.Volunteer
-	if err := database.DB.Where("name = ?", name).First(&volunteer).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Volunteer not found"})
+// func GetVolunteerByName(c *gin.Context) {
+// 	name := c.Param("name")
+// 	var volunteer model.Volunteer
+// 	if err := database.DB.Where("name = ?", name).First(&volunteer).Error; err != nil {
+// 		c.JSON(http.StatusNotFound, gin.H{"error": "Volunteer not found"})
+// 		return
+// 	}
+
+// 	c.JSON(http.StatusOK, volunteer)
+// }
+
+func DeleteReport(c *gin.Context) {
+	// Extract the report ID from the URL path
+	reportID := c.Param("id")
+
+	// Ensure reportID is a valid integer
+	id, err := strconv.ParseUint(reportID, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid report ID"})
 		return
 	}
 
-	c.JSON(http.StatusOK, volunteer)
+	if err := database.DB.Where("id = ?", id).Delete(&model.DisasterReport{}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete report"})
+		return
+	}
+
+	// Return success response
+	c.JSON(http.StatusOK, gin.H{"message": "Report deleted successfully"})
 }
 
-// Function to handle sending help
-func SendHelp(c *gin.Context) {
-	var city string
-	if err := c.ShouldBindJSON(&city); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "City is required"})
+func GetUserChatMessagesHandler(c *gin.Context) {
+	userId := c.Param("userId")
+	var messages []model.MessageModel
+	if err := database.DB.Where("user_id = ?", userId).Find(&messages).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch chat messages"})
 		return
 	}
-
-	// Get the database connection
-	db := database.DB
-
-	// Retrieve a volunteer from the specified city
-	var volunteer model.Volunteer
-	if err := db.Where("city = ?", city).First(&volunteer).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "No volunteers available from the specified city"})
-		return
-	}
-
-	// Display the name of the volunteer who will assist
-	fmt.Printf("Volunteer %s from %s will assist you.\n", volunteer.Name, volunteer.City)
-
-	// Respond with success message
-	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Volunteer %s from %s will assist you.", volunteer.Name, volunteer.City)})
+	c.JSON(http.StatusOK, messages)
+	fmt.Println(messages)
 }
 
+// SendMessageHandler sends a message to a specific user
+func SendMessageHandler(c *gin.Context) {
+	userIdStr := c.Param("userId")
+	userId, err := strconv.ParseUint(userIdStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
 
-func GetVolunteer(c *gin.Context) {
-    // Get city from query parameter
+	// Extract message content from the request body
+	var message struct {
+		Content string `json:"content"`
+	}
+	if err := c.BindJSON(&message); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	// Save the message to the database
+	newMessage := model.MessageModel{
+		Content:   message.Content,
+		Sender:    "Admin",
+		UserID:    uint(userId),
+		CreatedAt: time.Now(),
+	}
+	if err := database.DB.Create(&newMessage).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send message"})
+		return
+	}
+	c.Status(http.StatusOK)
+}
+
+func GetVolunteerByCityHandler(c *gin.Context) {
+    // Get the city from the query parameters
     city := c.Query("city")
 
-    // Query the database for a volunteer in the specified city
-    var volunteer model.Volunteer
-    result := database.DB.Where("city = ?", city).First(&volunteer)
-    if result.Error != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "No volunteer found for the city " + city})
+    // Fetch volunteer details based on the entered city
+    volunteer := model.Volunteer{}
+    if err := database.DB.Where("city = ?", city).First(&volunteer).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "No volunteer found for the specified city"})
+        return
+    }
+
+    // Send WhatsApp message to the volunteer using Twilio
+    err := sendWhatsAppMessage(volunteer.MobileNumber, "You should reach the location along with your team as soon as possible")
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send WhatsApp message"})
+        return
+    }
+
+    // Remove volunteer from the database after sending the message
+    if err := database.DB.Delete(&volunteer).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete volunteer from database"})
         return
     }
 
     // Return volunteer details as JSON response
     c.JSON(http.StatusOK, gin.H{
-        "name":         volunteer.Name,
-        "city":         volunteer.City,
-        "mobile_number": volunteer.MobileNumber,
+        "name":  volunteer.Name,
+        "phone": volunteer.MobileNumber,
     })
 }
-
-
-
-func DeleteVolunteer(c *gin.Context) {
-    // Extract the volunteer ID from the URL path
-    volunteerID := c.Param("id")
-
-    // Ensure volunteerID is a valid integer
-    id, err := strconv.ParseUint(volunteerID, 10, 64)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid volunteer ID"})
+func DeleteDisasterReportHandler(c *gin.Context) {
+    // Get the report ID from the query parameters
+    reportID := c.Query("id")
+    var reportIDUint uint64
+    var err error
+    if reportID != "" {
+        reportIDUint, err = strconv.ParseUint(reportID, 10, 64)
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid report ID"})
+            return
+        }
+    } else {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Report ID not provided"})
         return
     }
 
-    // Perform the deletion operation (assuming db is the Gorm database connection)
-    if err := database.DB.Where("id = ?", id).Delete(&model.Volunteer{}).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete volunteer"})
+    // Delete the disaster report from the database
+    if err := database.DB.Where("id = ?", reportIDUint).Delete(&model.DisasterReport{}).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete disaster report from database"})
         return
     }
 
-    // Return success response
-    c.JSON(http.StatusOK, gin.H{"message": "Volunteer deleted successfully"})
+    // Return success message
+    c.JSON(http.StatusOK, gin.H{"message": "Disaster report deleted successfully"})
 }
 
-func DeleteReport(c *gin.Context) {
-    // Extract the report ID from the URL path
-    reportID := c.Param("id")
+// sendWhatsAppMessage sends a WhatsApp message to the specified phone number using Twilio
+func sendWhatsAppMessage(phoneNumber, message string) error {
+	// Load Twilio credentials from environment variables
+	accountSID := os.Getenv("TWILIO_ACCOUNT_SID")
+	authToken := os.Getenv("TWILIO_AUTH_TOKEN")
+	// whatsappNumber := os.Getenv("TWILIO_WHATSAPP_NUMBER")
 
-    // Ensure reportID is a valid integer
-    id, err := strconv.ParseUint(reportID, 10, 64)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid report ID"})
-        return
-    }
+	client := twilio.NewRestClientWithParams(twilio.ClientParams{
+		Username: accountSID,
+		Password: authToken,
+	})
+	// Create WhatsApp message
+	params := &twilioApi.CreateMessageParams{}
+	params.SetTo("whatsapp:+919508223747")
+	params.SetFrom("whatsapp:+14155238886")
+	params.SetBody("Hello From the admin!!  You should reach the location along with your team as soon as possible")
 
-    // Perform the deletion operation (assuming db is the Gorm database connection)
-    if err := database.DB.Where("id = ?", id).Delete(&model.DisasterReport{}).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete report"})
-        return
-    }
+	_, err := client.Api.CreateMessage(params)
+	if err != nil {
+		fmt.Println("Error sending WhatsApp message:", err.Error())
+		return err
+	}
 
-    // Return success response
-    c.JSON(http.StatusOK, gin.H{"message": "Report deleted successfully"})
+	return nil
 }
+
+func GetDisasterTypesHandler(c *gin.Context) {
+    disasters, err := FetchDisasterssFromDatabase()
+    if err != nil {
+        c.HTML(http.StatusInternalServerError, "error.html", gin.H{"error": err.Error()})
+        return
+    }
+
+    // Render the HTML template with the disaster types
+    c.HTML(http.StatusOK, "ReportDisaster.html", gin.H{
+        "Disasters": disasters,
+    })
+}
+func FetchDisasterssFromDatabase() ([]model.NaturalDisaster, error) {
+    var disasters []model.NaturalDisaster
+    if err := database.DB.Find(&disasters).Error; err != nil {
+        return nil, err
+    }
+    return disasters, nil
+}
+func GetAllDisasterss(c *gin.Context) {
+    disasters, err := FetchDisasterssFromDatabase()
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+	c.JSON(200, gin.H{"disasters": disasters})
+    // if c.Request.Header.Get("Content-Type") == "application/json" {
+    //     c.JSON(200, gin.H{"disasters": disasters})
+	// 	fmt.Println("done")
+    // } else {
+    //     c.HTML(http.StatusOK, "ReportDisaster.html", gin.H{"disasters": disasters})
+    // }
+}
+
+
+
 

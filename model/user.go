@@ -71,3 +71,12 @@ type Volunteer struct {
     City         string `form:"city" binding:"required"`
     MobileNumber string `form:"mobile_number" binding:"required"`
 }
+
+
+type MessageModel struct {
+    ID        uint `gorm:"primary_key"`
+    Content   string
+    Sender    string
+    UserID    uint
+    CreatedAt time.Time
+}

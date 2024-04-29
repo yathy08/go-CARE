@@ -323,7 +323,103 @@
     .form-group button[type="submit"]:hover {
         background-color: #45a049;
     }
+    .ccontainer {
+  display: flex;
+  height: 100vh;
+}
 
+.users-list {
+  width: 250px;
+  padding: 20px;
+  border-right: 1px solid #ddd;
+}
+
+.users-list h2 {
+  margin-bottom: 10px;
+}
+
+#user-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#user-list li {
+  cursor: pointer;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+#user-list li.active {
+  background-color: #f5f5f5;
+}
+
+.chat-window {
+  flex: 1;
+  display: none;
+  padding: 20px;
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.chat-header button {
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.messages-container {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  height: calc(100vh - 130px);
+  overflow-y: scroll;
+}
+
+.message {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.message.admin {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.message .message-content {
+  padding: 10px 15px;
+  border-radius: 5px;
+  background-color: #ddd;
+}
+
+.input-container {
+  display: flex;
+  margin-top: 10px;
+}
+
+#message-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+#send-button {
+  padding: 10px 15px;
+  border: none;
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+}
+ 
     </style>
 </head>
 <body>
@@ -370,6 +466,27 @@
             <button type="submit" class="btn">Search</button>
         </form>
     </div>
+   
+           
+            <div class="ccontainer">
+                <div class="users-list">
+                    {{range .Users}}
+                    <div class="user" data-id="{{.ID}}">{{.Name}}</div>
+                    {{end}}
+                </div>
+                <div id="messageModal" class="chat-window">
+                  <div class="chat-header">
+                    <h3 id="chat-username"></h3>
+                    <button id="close-chat">Close</button>
+                  </div>
+                  <div id="messages-container" class="messages-container">
+                    </div>
+                  <div class="input-container">
+                    <input type="text" id="message-input" placeholder="Type your message...">
+                    <button id="send-button">Send</button>
+                  </div>
+                </div>
+              </div>
 
     <div class="container">
         <h2 style="color: #0f1b07;">Disaster Reports</h2>
@@ -406,8 +523,7 @@
         </div>
         
         </div>
- 
-    
+       
       <div class="container">
         <div class="dashboard">
             <h2 style="color: #4CAF50;">Assistance Requests</h2>
@@ -704,10 +820,59 @@
 </div>
 
 
-
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
     <script>
+ document.addEventListener("DOMContentLoaded", function() {
+    // Add Volunteer Form Submission
+    document.getElementById("addVolunteerForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        var formData = new FormData(this);
+        fetch("/api/add-volunteer", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error("Failed to add volunteer");
+            }
+        })
+        .then(data => {
+            // Reload the page to display the updated volunteer inventory
+            location.reload();
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("Failed to add volunteer");
+        });
+    });
+});
+
+function deleteVolunteer(name) {
+    if (confirm("Are you sure you want to delete this volunteer?")) {
+        // Send delete request to server
+        fetch("/api/delete-volunteer/" + name, {
+            method: "DELETE"
+        })
+        .then(response => {
+            if (response.ok) {
+                // Volunteer deleted successfully, reload the page
+                location.reload();
+            } else {
+                // Failed to delete volunteer, show error message
+                throw new Error("Failed to delete volunteer");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert(error.message);
+        });
+    }
+}
+
+
 let showAlll = false;
 
 function toggleVolunteers() {
@@ -1267,140 +1432,63 @@ document.addEventListener("click", function(event) {
         });
     }
 });
-
 function sendHelp(latitude, longitude) {
-    // Display popup message with coordinates
-    var confirmation = confirm("Send help to coordinates: " + latitude + ", " + longitude + "?");
-
-    // If user confirms, show success message and delete the disaster report
-    if (confirmation) {
-        alert("Help sent successfully to coordinates: " + latitude + ", " + longitude);
-        
-        // Send DELETE request to delete the reported disaster from the database
-        fetch('/api/deleteDisasterReport', {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                latitude: latitude,
-                longitude: longitude
-            })
-        })
-        .then(response => {
-            if (response.ok) {
-                console.log('Disaster report deleted successfully');
-            } else {
-                console.error('Failed to delete disaster report');
-            }
-        })
-        .catch(error => {
-            console.error('Error deleting disaster report:', error);
-        });
+    // Perform AJAX request to fetch volunteer details based on the entered city
+    var city = prompt("Enter the city where you need assistance:");
+    if (!city) {
+        return;
     }
-}
 
-document.addEventListener("DOMContentLoaded", function() {
-    // Add Volunteer Form Submission
-    document.getElementById("addVolunteerForm").addEventListener("submit", function(event) {
-        event.preventDefault();
-        var formData = new FormData(this);
-        fetch("/api/add-volunteer", {
-            method: "POST",
-            body: formData
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error("Failed to add volunteer");
-            }
-        })
-        .then(data => {
-            // Reload the page to display the updated volunteer inventory
-            location.reload();
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            alert("Failed to add volunteer");
-        });
-    });
-});
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "/api/volunteer?city=" + encodeURIComponent(city), true);
 
-function deleteVolunteer(name) {
-    if (confirm("Are you sure you want to delete this volunteer?")) {
-        // Send delete request to server
-        fetch("/api/delete-volunteer/" + name, {
-            method: "DELETE"
-        })
-        .then(response => {
-            if (response.ok) {
-                // Volunteer deleted successfully, reload the page
-                location.reload();
-            } else {
-                // Failed to delete volunteer, show error message
-                throw new Error("Failed to delete volunteer");
-            }
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            alert(error.message);
-        });
-    }
-}
+    // Callback function when AJAX request completes
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            // Request successful
+            var response = JSON.parse(xhr.responseText);
+            var volunteer = response.volunteer;
+            var reportId = response.report_id;
 
-function sendHelp(latitude, longitude) {
-    var city = prompt("Which city do you need help in?");
-    
-    if (city) {
-        fetch('/getVolunteer?city=' + encodeURIComponent(city), {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to fetch volunteer details');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data && data.name && data.city && data.mobile_number) {
-                var confirmationMessage = "Volunteer " + data.name + " from " + data.city + " with mobile number " + data.mobile_number + " will be assisting the location (" + latitude + ", " + longitude + "). Thank you!";
-                alert(confirmationMessage);
-                // After displaying the alert, delete the volunteer from the database
-                deleteVolunteer(data.id);
-            } else {
-                alert('No volunteer found for the city ' + city);
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching volunteer details:', error.message);
-            alert('Failed to fetch volunteer details. Please try again later.');
-        });
-    }
-}
- 
+            // Display volunteer details in an alert box
+            var message = "Volunteer Name: " + volunteer.name + "\n" +
+                          "Volunteer Phone: " + volunteer.phone + "\n\n" +
+                          "This volunteer will assist the location.";
 
-function deleteVolunteer(volunteerId) {
-    fetch('/deleteVolunteer/' + volunteerId, {
-        method: 'DELETE'
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Failed to delete volunteer');
+            // Send WhatsApp message to the volunteer
+            sendWhatsAppMessage(volunteer.phone, "Please assist the location.");
+
+            // Display the volunteer details and message in an alert box
+            alert(message);
+
+            // Perform AJAX request to delete the disaster report from the database
+            var deleteReportXHR = new XMLHttpRequest();
+            deleteReportXHR.open("DELETE", "/api/disaster-report?id=" + encodeURIComponent(reportId), true);
+
+            // Callback function when delete request completes
+            deleteReportXHR.onload = function() {
+                if (deleteReportXHR.status === 200) {
+                    // Report deleted successfully
+                    console.log("Disaster report deleted successfully");
+                    // Reload the window after the report is deleted
+                    window.location.reload();
+                } else {
+                    // Failed to delete report
+                    console.error("Failed to delete disaster report");
+                }
+            };
+
+            // Send the delete request
+            deleteReportXHR.send();
+        } else {
+            // Request failed
+            alert("No volunteer found for the specified city.");
         }
-        console.log('Volunteer deleted successfully');
-    })
-    .catch(error => {
-        console.error('Error deleting volunteer:', error.message);
-        alert('Failed to delete volunteer. Please try again later.');
-    });
+    };
+
+    // Send the AJAX request
+    xhr.send();
 }
-
-
-
 
     </script>
 </body>

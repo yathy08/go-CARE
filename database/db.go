@@ -19,5 +19,5 @@ func DBconnect() {
 	}
 	DB = db
 
-	DB.AutoMigrate(&model.UserModel{}, &model.AdminModel{}, &model.DisasterReport{}, &model.AlertPotentialDisasterReport{}, &model.AssistanceRequest{}, &model.Resources{}, &model.NaturalDisaster{}, &model.Volunteer{})
+	DB.AutoMigrate(&model.UserModel{}, &model.AdminModel{}, &model.DisasterReport{}, &model.AlertPotentialDisasterReport{}, &model.AssistanceRequest{}, &model.Resources{}, &model.NaturalDisaster{}, &model.Volunteer{}, &model.MessageModel{})
 }
