@@ -10,5 +10,3 @@ type AdminModel struct {
 	Email    string `gorm:"unique"`
 	Password string
 }
-
-

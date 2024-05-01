@@ -84,7 +84,7 @@
             <label for="disasterType">Type of Disaster:</label>
             <select id="disasterType" name="disasterType" required>
                 {{range .Disasters}}
-                <option value="{{.ID}}">{{.Name}}</option>
+                <option value="{{.Name}}">{{.Name}}</option>
             {{end}}
         </select>
 
@@ -402,7 +402,7 @@ fetch('/fetchAllDisasterss')
         // Iterate over the fetched disasters and create an option for each
         data.disasters.forEach(disaster => {
             const option = document.createElement('option');
-            option.value = disaster.id; // Use an appropriate value for the option
+            // option.value = disaster.id; // Use an appropriate value for the option
             option.textContent = disaster.name; // Display the name of the disaster
             select.appendChild(option);
         });

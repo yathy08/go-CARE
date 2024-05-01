@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+        integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
     <style>
         html {
             height: 100%;
@@ -17,10 +18,11 @@
             line-height: 1.7;
             /* color: #5b5b5e; */
             /* background: rgb(103, 106, 168); */
-            overflow-x: hidden; background-image: url(https://images.pexels.com/photos/2559484/pexels-photo-2559484.jpeg?auto=compress&cs=tinysrgb&w=7200);
+            overflow-x: hidden;
+            background-image: url(https://images.pexels.com/photos/2559484/pexels-photo-2559484.jpeg?auto=compress&cs=tinysrgb&w=7200);
             background-position: 100%;
             background-size: cover;
-   
+
         }
 
         a {
@@ -212,7 +214,7 @@
         .form-style:active {
             border: none;
             outline: none;
-            box-shadow:  rgba(112, 105, 105, 0.2);
+            box-shadow: rgba(112, 105, 105, 0.2);
             backdrop-filter: blur(5px);
         }
 
@@ -315,13 +317,16 @@
         }
     </style>
 </head>
+
 <body>
     <div class="section">
         <div class="container">
             <div class="row full-height justify-content-center">
                 <div class="col-12 text-center align-self-center py-5">
                     <div class="section pb-5 pt-5 pt-sm-2 text-center">
-                        <h6 class="top3 mb-0 pb-3"><span>Sign Up</span>|<span><a class="adminredirect" href="/admin">Admin</a></span>|<span><a class="adminredirect" href="/"> Login</a></span></h6>
+                        <h6 class="top3 mb-0 pb-3"><span>Sign Up</span>|<span><a class="adminredirect"
+                                    href="/admin">Admin</a></span>|<span><a class="adminredirect" href="/">
+                                    Login</a></span></h6>
                         <label for="reg-log"></label>
                         <div class="card-3d-wrap mx-auto">
                             <div class="card-3d-wrapper">
@@ -331,26 +336,34 @@
                                             <h4 class="siup mb-4 pb-3">User Sign Up Portal</h4>
                                             <form id="signup-form" method="post" action="/signup">
                                                 <div class="form-group mt-2">
-                                                    <input type="text" name="username" class="form-style" placeholder="Username" required>
+                                                    <input type="text" name="username" class="form-style"
+                                                        placeholder="Username" required>
                                                 </div>
                                                 <div class="form-group mt-2">
-                                                    <input type="email" name="email" class="form-style" placeholder="Email" required>
+                                                    <input type="email" name="email" class="form-style"
+                                                        placeholder="Email" required>
                                                 </div>
                                                 <div class="form-group mt-2">
-                                                    <input type="password" name="password" class="form-style" placeholder="Password" required>
+                                                    <input type="password" name="password" class="form-style"
+                                                        placeholder="Password" required>
                                                 </div>
                                                 <div class="form-group mt-2">
-                                                    <input type="tel" name="phone_number" class="form-style" placeholder="Phone Number" required>
+                                                    <input type="tel" name="phone_number" class="form-style"
+                                                        placeholder="Phone Number" required>
                                                 </div>
                                                 <div class="form-group mt-2" id="otp-input" style="display: none;">
-                                                    <input type="text" name="otp" class="form-style" placeholder="Enter OTP" required>
+                                                    <input type="text" name="otp" class="form-style"
+                                                        placeholder="Enter OTP" required>
                                                 </div>
                                                 <p style="color: red; align-items: center;">{{.}}</p>
                                                 <br>
-                                                <button type="button" id="send-otp" class="submitdata btn btn-dark">Send OTP</button>
-                                                <button type="submit" id="submit-btn" class="submitdata btn btn-dark" style="display: none;">Sign Up</button>
+                                                <button type="button" id="send-otp" class="submitdata btn btn-dark">Send
+                                                    OTP</button>
+                                                <button type="submit" id="submit-btn" class="submitdata btn btn-dark"
+                                                    style="display: none;">Sign Up</button>
                                                 <br>
-                                                <p class="alreadyuser ">Already have an Account?Click <a href="/">here</a> for login</p>
+                                                <p class="alreadyuser ">Already have an Account?Click <a
+                                                        href="/">here</a> for login</p>
                                             </form>
                                         </div>
                                     </div>
@@ -364,24 +377,24 @@
     </div>
 
     <script>
-        document.getElementById('send-otp').addEventListener('click', function() {
+        document.getElementById('send-otp').addEventListener('click', function () {
             const phoneNumber = document.querySelector('input[name="phone_number"]').value;
             sendOTP(phoneNumber);
         });
-        
-        document.getElementById('submit-btn').addEventListener('click', function() {
+
+        document.getElementById('submit-btn').addEventListener('click', function () {
             const otp = document.querySelector('input[name="otp"]').value.trim();
-        
+
             if (otp === '') {
                 alert('Please enter OTP.');
                 return;
             }
-        
+
             const phoneNumber = document.querySelector('input[name="phone_number"]').value;
-        
+
             verifyOTP(phoneNumber, otp);
         });
-        
+
         function sendOTP(phoneNumber) {
             fetch('/api/send-otp', {
                 method: 'POST',
@@ -390,27 +403,27 @@
                 },
                 body: JSON.stringify({ phone_number: phoneNumber })
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to send OTP');
-                }
-                return response.json();
-            })
-            .then(data => {
-                alert('OTP sent successfully');
-                // Show OTP input field
-                document.getElementById('otp-input').style.display = 'block';
-                // Hide "Send OTP" button
-                document.getElementById('send-otp').style.display = 'none';
-                // Show "Sign Up" button
-                document.getElementById('submit-btn').style.display = 'block';
-            })
-            .catch(error => {
-                console.error('Error sending OTP:', error);
-                alert('Error sending OTP. Please try again.');
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to send OTP');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert('OTP sent successfully');
+                    // Show OTP input field
+                    document.getElementById('otp-input').style.display = 'block';
+                    // Hide "Send OTP" button
+                    document.getElementById('send-otp').style.display = 'none';
+                    // Show "Sign Up" button
+                    document.getElementById('submit-btn').style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error sending OTP:', error);
+                    alert('Error sending OTP. Please try again.');
+                });
         }
-        
+
         function verifyOTP(phoneNumber, otp) {
             fetch('/api/signup/verify', {
                 method: 'POST',
@@ -419,22 +432,23 @@
                 },
                 body: JSON.stringify({ phone_number: phoneNumber, otp: otp })
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to verify OTP');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    alert('Sign up successful');
-                    // Optionally, redirect the user to another page
-                } else {
-                    alert('Failed to sign up: ' + data.message);
-                }
-            })
-           
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to verify OTP');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        alert('Sign up successful');
+                        // Optionally, redirect the user to another page
+                    } else {
+                        alert('Failed to sign up: ' + data.message);
+                    }
+                })
+
         }
     </script>
 </body>
+
 </html>

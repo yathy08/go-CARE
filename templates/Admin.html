@@ -1,144 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Page</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
-</head>
-<body>
-    <style>
-        html {
-          height: 100%;
-        }
-        body {
-          margin:0;
-          padding:0;
-          font-family: sans-serif;
-          background: rgb(0, 1, 10);
-          background-image: url(https://images.pexels.com/photos/4070727/pexels-photo-4070727.jpeg?auto=compress&cs=tinysrgb&w=7200) ;
-         background-position: 100%;
-         background-size: cover;
-        }
-        
-        .login-box {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 400px;
-          padding: 40px;
-          transform: translate(-50%, -50%);
-          background-color: rgba(255, 255, 255, 0.26);
-          box-sizing: border-box;
-          box-shadow: 0 15px 25px rgba(227, 199, 199, 0.26);
-          border-radius: 10px;
-          font-weight: 600;
-          text-shadow: 0 0 10px rgba(255, 255, 255, 0.0005); 
-          backdrop-filter: blur(5px);
-        }
-        
-        .login-box h2 {
-          margin: 0 0 30px;
-          padding: 0;
-          /* background-color: rgba(255, 255, 255,0.2); */
-          text-align: center;
-          font-size: 40px;
-          /* backdrop-filter: blur(5px);  */
-          font-weight: 600;
-        }
-/*hello*/
-        .login-box .user-box {
-          position: relative;
-        }
-        
-        .login-box .user-box input {
-          width: 100%;
-          padding: 10px 0;
-          font-size: 26px;
-          color: rgb(0, 0, 0);
-          margin-bottom: 30px;
-          border: none;
-          border-bottom: 1px solid rgb(22, 22, 22);
-          outline: none;
-          background: transparent;
-          font-weight: 600;
-        }
 
-        .login-box .user-box label {
-          position: absolute;
-          top:0;
-          left: 0;
-          padding: 10px 0;
-          font-size: 16px;
-          color: rgb(6, 6, 6);
-          pointer-events: none;
-          transition: .5s;
-          font-weight: 600;
-        }
-        
-        .login-box form a {
-          position: relative;
-          display: inline-block;
-          padding: 10px 20px;
-          color: #000000;
-          font-size: 16px;
-          text-decoration: none;
-          text-transform: uppercase;
-          overflow: hidden;
-          transition: .5s;
-          margin-top: 40px;
-          letter-spacing: 4px
-        
-        }
-         
-        /* .login-box a span {
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Page</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+</head>
+
+<body>
+  <style>
+    html {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background: rgb(0, 1, 10);
+      background-image: url(https://images.pexels.com/photos/4070727/pexels-photo-4070727.jpeg?auto=compress&cs=tinysrgb&w=7200);
+      background-position: 100%;
+      background-size: cover;
+    }
+
+    .login-box {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 400px;
+      padding: 40px;
+      transform: translate(-50%, -50%);
+      background-color: rgba(255, 255, 255, 0.26);
+      box-sizing: border-box;
+      box-shadow: 0 15px 25px rgba(227, 199, 199, 0.26);
+      border-radius: 10px;
+      font-weight: 600;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.0005);
+      backdrop-filter: blur(5px);
+    }
+
+    .login-box h2 {
+      margin: 0 0 30px;
+      padding: 0;
+      /* background-color: rgba(255, 255, 255,0.2); */
+      text-align: center;
+      font-size: 40px;
+      /* backdrop-filter: blur(5px);  */
+      font-weight: 600;
+    }
+
+    /*hello*/
+    .login-box .user-box {
+      position: relative;
+    }
+
+    .login-box .user-box input {
+      width: 100%;
+      padding: 10px 0;
+      font-size: 26px;
+      color: rgb(0, 0, 0);
+      margin-bottom: 30px;
+      border: none;
+      border-bottom: 1px solid rgb(22, 22, 22);
+      outline: none;
+      background: transparent;
+      font-weight: 600;
+    }
+
+    .login-box .user-box label {
+      position: absolute;
+      top: 0;
+      left: 0;
+      padding: 10px 0;
+      font-size: 16px;
+      color: rgb(6, 6, 6);
+      pointer-events: none;
+      transition: .5s;
+      font-weight: 600;
+    }
+
+    .login-box form a {
+      position: relative;
+      display: inline-block;
+      padding: 10px 20px;
+      color: #000000;
+      font-size: 16px;
+      text-decoration: none;
+      text-transform: uppercase;
+      overflow: hidden;
+      transition: .5s;
+      margin-top: 40px;
+      letter-spacing: 4px
+    }
+
+    /* .login-box a span {
           position: absolute;
           display: block;
         } */
-        
-        .login-box .user-box input:focus ~ label,
-        .login-box .user-box input:valid ~ label {
-          top: -20px;
-          left: 0;
-          color: #000000;
-          font-size: 12px;
-          font-weight: 600;
-        }
-       
-        @import url('https://fonts.googleapis.com/css?family=Exo:400,700');
-      
-      *{
-          margin: 0px;
-          padding: 0px;
-      }
-    
-      .context {
-          width: 100%;
-          position: absolute;
-          top:50vh;
-          
-      }
-      </style>
-        <div class="login-box">
-            <br><br>
-              <h2>Admin Login</h2>
-              <form action="/admin" method="post">
-                <div class="user-box">
-                  <input type="email" name="AEmail" required>
-                  <label>Email</label>
-                </div>
-                <div class="user-box">
-                  <input type="password" name="Apassword" required>
-                  <label>Password</label>
-                </div>
-                <a href="#">
-                  <p style="color: red; align-items: center;">{{.}}</p>
-                 <input type="submit" class="submitdata btn btn-dark" name="submit">        
-                </a>
-             <br>
-                <a href="/" class="adminredirect btn">Login Page</a> <br> <p style="color:rgb(133, 133, 132);"> Not an Admin? Login here</p>
-              </form>
-            </div>
-      
+
+    .login-box .user-box input:focus~label,
+    .login-box .user-box input:valid~label {
+      top: -20px;
+      left: 0;
+      color: #000000;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    @import url('https://fonts.googleapis.com/css?family=Exo:400,700');
+
+    * {
+      margin: 0px;
+      padding: 0px;
+    }
+
+    .context {
+      width: 100%;
+      position: absolute;
+      top: 50vh;
+
+    }
+  </style>
+  <div class="login-box">
+    <br><br>
+    <h2>Admin Login</h2>
+    <form action="/admin" method="post">
+      <div class="user-box">
+        <input type="email" name="AEmail" required>
+        <label>Email</label>
+      </div>
+      <div class="user-box">
+        <input type="password" name="Apassword" required>
+        <label>Password</label>
+      </div>
+      <a href="#">
+        <p style="color: red; align-items: center;">{{.}}</p>
+        <input type="submit" class="submitdata btn btn-dark" name="submit">
+      </a>
+      <br>
+      <a href="/" class="adminredirect btn">Login Page</a> <br>
+      <p style="color:rgb(133, 133, 132);"> Not an Admin? Login here</p>
+    </form>
+  </div>
+
 </body>
+
 </html>

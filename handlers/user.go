@@ -3,11 +3,9 @@ package routes
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
-
-	// "log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/gin-contrib/sessions"
@@ -30,8 +28,6 @@ const RoleUser = "user"
 
 func Login(c *gin.Context) {
 	c.Header("Cache-Control", "no-cache,no-store,must-revalidate")
-
-	// Check if the request accepts JSON
 	if c.Request.Header.Get("Content-Type") == "application/json" {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "Please use HTML form data for login"})
 		return
@@ -50,13 +46,12 @@ func Login(c *gin.Context) {
 func Postlogin(c *gin.Context) {
 	var user model.UserModel
 
-	// Check if the request content type is JSON
 	if c.Request.Header.Get("Content-Type") == "application/json" {
 		if err := c.ShouldBindJSON(&user); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-	} else { // Assume HTML form data
+	} else {
 		user.Email = c.PostForm("Email")
 		password := c.PostForm("password")
 
@@ -78,7 +73,6 @@ func Postlogin(c *gin.Context) {
 		return
 	}
 
-	// Handle JSON request separately
 	password := c.PostForm("password")
 
 	database.DB.First(&user, "email=?", user.Email)
@@ -103,7 +97,6 @@ func RegisterRoutes(router *gin.Engine) {
 	router.POST("/api/send-otp", SendOTPHandler())
 }
 
-// Define the handler function
 func SendOTPHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		phoneNumber := c.PostForm("phone_number")
@@ -117,7 +110,7 @@ func SendOTPHandler() gin.HandlerFunc {
 }
 
 func SendOTP(phoneNumber string) error {
-	//Load Twilio credentials from enviornment variable
+
 	accountSID := os.Getenv("TWILIO_ACCOUNT_SID")
 	authToken := os.Getenv("TWILIO_AUTH_TOKEN")
 
@@ -126,7 +119,6 @@ func SendOTP(phoneNumber string) error {
 		Password: authToken,
 	})
 
-	//Create SMS message
 	from := os.Getenv("TWILIO_PHONE_NUMBER")
 	params := verify.CreateVerificationParams{}
 	params.SetTo("+919508223747")
@@ -240,7 +232,6 @@ func SignupVerify(c *gin.Context) {
 	authToken := os.Getenv("TWILIO_AUTH_TOKEN")
 	serviceToken := os.Getenv("SERVICE_TOKEN")
 
-	// Parse request body into VerifyOTP struct
 	var verifyModel model.VerifyOTP
 	if err := c.BindJSON(&verifyModel); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Failed to parse request body"})
@@ -248,24 +239,21 @@ func SignupVerify(c *gin.Context) {
 	}
 
 	verifyModel.Phone = "+919508223747"
-	// Check if OTP is provided
+
 	if verifyModel.Otp == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "OTP is required"})
 		return
 	}
 
-	// Create Twilio REST client
 	client := twilio.NewRestClientWithParams(twilio.ClientParams{
 		Username: accountSID,
 		Password: authToken,
 	})
 
-	// Create parameters for Twilio verification check
 	params := verify.CreateVerificationCheckParams{}
 	params.SetTo("+919508223747")
 	params.SetCode(verifyModel.Otp)
 
-	// Send Twilio verification check
 	resp, err := client.VerifyV2.CreateVerificationCheck(serviceToken, &params)
 	if err != nil {
 
@@ -273,9 +261,8 @@ func SignupVerify(c *gin.Context) {
 		return
 	}
 
-	// Check if the verification was successful
 	if resp.Status != nil && *resp.Status == "approved" {
-		// OTP verified, proceed with user creation
+
 		key := fmt.Sprintf("user:%s", verifyModel.Phone)
 		fmt.Println("getkey: ", key)
 		userJson, err := database.GetRedis(key)
@@ -290,21 +277,20 @@ func SignupVerify(c *gin.Context) {
 			c.JSON(http.StatusBadGateway, gin.H{"failed": false, "message": "Failed to unmarshal data"})
 			return
 		}
-		// user := model.UserModel{Phone: verifyModel.Phone}
+
 		if err := database.DB.Create(&user).Error; err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Failed to create user"})
 			return
 		}
 
-		// Success response
 		c.JSON(http.StatusOK, gin.H{"success": true, "message": "OTP verified successfully"})
 	} else {
-		// Verification failed
+
 		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "message": "Incorrect OTP"})
 	}
 }
 func SaveReportToDatabase(report *model.DisasterReport) error {
-	// Save the report to the database
+
 	if result := database.DB.Create(report); result.Error != nil {
 		return result.Error
 	}
@@ -316,36 +302,35 @@ func PostReportDisaster(c *gin.Context) {
 
 	var datas model.DisasterReport
 
-	fmt.Println(c.Bind(datas))
+	fmt.Println(c.ShouldBind(datas))
 
 	fmt.Println(datas)
-	// Parse form data
+
 	if err := c.Request.ParseForm(); err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse form data"})
 		return
 	}
 
-	data := c.Request.PostForm	
+	data := c.Request.PostForm
 
 	fmt.Println("data :", data)
 	report := model.DisasterReport{
-		DisasterType: data.Get("DisasterType"),
-		Latitude:     data.Get("Latitude"),
+		DisasterType: data.Get("disasterType"),
+		Latitude:     data.Get("latitude"),
 		Longitude:    data.Get("longitude"),
 		FileURL:      data.Get("file"),
 		Severity:     data.Get("severity"),
 		Description:  data.Get("description"),
 	}
 
-	// Save the report to the database
 	if err := SaveReportToDatabase(&report); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save report"})
 		return
 	}
 
 	c.JSON(200, gin.H{"message": "saved data"})
-	//c.Redirect(http.StatusFound, "/")
+
 }
 
 func GetReportDisaster(c *gin.Context) {
@@ -371,25 +356,23 @@ func GetRequestAssistance(c *gin.Context) {
 }
 
 func PostRequestAssistance(c *gin.Context) {
-	// Bind the form data from the request body to AssistanceRequest struct
+
 	var request model.AssistanceRequest
 	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Save the assistance request data into the database
 	if err := SaveToDatabase(&request); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save assistance request"})
 		return
 	}
 
-	// Return a success response
 	c.JSON(http.StatusOK, gin.H{"message": "Assistance request submitted successfully"})
 }
 
 func SaveToDatabase(request *model.AssistanceRequest) error {
-	// Save the request to the database
+
 	if err := database.DB.Create(request).Error; err != nil {
 		return err
 	}
@@ -410,7 +393,6 @@ func PostAlertPotentialDisaster(c *gin.Context) {
 		return
 	}
 
-	// Return a success response
 	c.JSON(http.StatusOK, gin.H{"message": "Potential disaster alert request submitted successfully"})
 }
 
@@ -426,7 +408,7 @@ func CreateResource(c *gin.Context) {
 	var resource model.Resources
 	if err := c.BindJSON(&resource); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		// fmt.Println(err)
+
 		return
 	}
 
@@ -438,7 +420,6 @@ func CreateResource(c *gin.Context) {
 	c.JSON(http.StatusCreated, resource)
 }
 
-// GetResourceByIDHandler retrieves a resource by ID
 func GetResourceByID(c *gin.Context) {
 	id := c.Param("id")
 	var resource model.Resources
@@ -451,16 +432,14 @@ func GetResourceByID(c *gin.Context) {
 }
 
 func UpdateResource(c *gin.Context) {
-	id := c.Param("id") // Extract resource ID from URL
+	id := c.Param("id")
 
-	// Retrieve the resource from the database by its ID
 	var existingResource model.Resources
 	if err := database.DB.First(&existingResource, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Resource not found"})
 		return
 	}
 
-	// Bind the updated resource data from the request body
 	var updatedResource model.Resources
 	if err := c.BindJSON(&updatedResource); err != nil {
 		fmt.Println("here", err)
@@ -473,7 +452,6 @@ func UpdateResource(c *gin.Context) {
 	existingResource.Availability = updatedResource.Availability
 	existingResource.Quantity = updatedResource.Quantity
 
-	// Save the updated resource back to the database
 	if err := database.DB.Save(&existingResource).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -519,9 +497,8 @@ func DeleteDisaster(c *gin.Context) {
 }
 
 func UpdateDisaster(c *gin.Context) {
-	id := c.Param("id") // Extract disaster ID from URL
+	id := c.Param("id")
 
-	// Retrieve the disaster from the database by its ID
 	var existingDisaster model.NaturalDisaster
 	if err := database.DB.First(&existingDisaster, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Disaster not found"})
@@ -529,7 +506,6 @@ func UpdateDisaster(c *gin.Context) {
 		return
 	}
 
-	// Bind the updated disaster name from the request body
 	var updatedName struct {
 		Name string `json:"name"`
 	}
@@ -541,7 +517,6 @@ func UpdateDisaster(c *gin.Context) {
 
 	existingDisaster.Name = updatedName.Name
 
-	// Save the updated disaster name back to the database
 	if err := database.DB.Save(&existingDisaster).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		fmt.Println(err)
@@ -551,19 +526,16 @@ func UpdateDisaster(c *gin.Context) {
 	c.JSON(http.StatusOK, existingDisaster)
 }
 
-// Handler function for resource allocation
 func AllocateResource(c *gin.Context) {
-	// Extract the ID of the assistance request from the URL parameter
+
 	requestId := c.Param("id")
 
-	// Fetch the assistance request from the database
 	var request model.AssistanceRequest
 	if err := database.DB.First(&request, requestId).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Assistance request not found"})
 		return
 	}
 
-	// Fetch the available resources from the database based on the requested resource name
 	var resource model.Resources
 	if err := database.DB.Where("name = ? AND availability = ?", request.ResourceName, "true").First(&resource).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -574,43 +546,36 @@ func AllocateResource(c *gin.Context) {
 		return
 	}
 
-	// Convert the quantity from string to int
 	quantity, err := strconv.Atoi(request.Quantity)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid quantity format"})
 		return
 	}
 
-	// Check if the requested quantity of resource is available
 	if resource.Quantity < quantity {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Insufficient resources available"})
 		return
 	}
 
-	// Calculate the remaining quantity of resources after allocation
 	remainingQuantity := resource.Quantity - quantity
 
-	// Update the database with the allocated resources
 	if err := database.DB.Model(&resource).Update("quantity", remainingQuantity).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Delete the assistance request from the database
 	if err := database.DB.Delete(&request).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Construct the success message
 	successMessage := fmt.Sprintf("Successfully allocated %d %s", quantity, request.ResourceName)
 
-	// Send the success message
 	c.JSON(http.StatusOK, gin.H{"message": successMessage})
 }
 
 func SaveVolunteerToDatabase(volunteer *model.Volunteer) error {
-	// Save the volunteer to the database
+
 	if result := database.DB.Create(volunteer); result.Error != nil {
 		return result.Error
 	}
@@ -618,27 +583,24 @@ func SaveVolunteerToDatabase(volunteer *model.Volunteer) error {
 }
 
 func SubmitVolunteerForm(c *gin.Context) {
-	// Parse form data
+
 	var volunteer model.Volunteer
 	if err := c.Bind(&volunteer); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse form data"})
 		return
 	}
 
-	// Save the volunteer to the database
 	if err := SaveVolunteerToDatabase(&volunteer); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save volunteer"})
 		return
 	}
 
-	// Respond with success message
 	c.JSON(http.StatusOK, gin.H{"message": "Volunteer application submitted successfully!"})
 }
 func GetvolunteerForm(c *gin.Context) {
 	c.HTML(http.StatusOK, "volunteer.html", nil)
 }
 
-// AddVolunteer adds a new volunteer to the database
 func AddVolunteer(c *gin.Context) {
 	var volunteer model.Volunteer
 	if err := c.ShouldBind(&volunteer); err != nil {
@@ -646,17 +608,14 @@ func AddVolunteer(c *gin.Context) {
 		return
 	}
 
-	// Save the volunteer to the database
 	if err := SaveVolunteerToDatabase(&volunteer); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add volunteer"})
 		return
 	}
 
-	// Respond with success message
 	c.JSON(http.StatusOK, gin.H{"message": "Volunteer added successfully"})
 }
 
-// DeleteVolunteerByName deletes a volunteer from the database by name
 func DeleteVolunteerByName(c *gin.Context) {
 	name := c.Param("name")
 	if err := database.DB.Where("name = ?", name).Delete(&model.Volunteer{}).Error; err != nil {
@@ -666,23 +625,10 @@ func DeleteVolunteerByName(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Volunteer deleted successfully"})
 }
 
-// GetVolunteerByName retrieves a volunteer by its name from the database
-// func GetVolunteerByName(c *gin.Context) {
-// 	name := c.Param("name")
-// 	var volunteer model.Volunteer
-// 	if err := database.DB.Where("name = ?", name).First(&volunteer).Error; err != nil {
-// 		c.JSON(http.StatusNotFound, gin.H{"error": "Volunteer not found"})
-// 		return
-// 	}
-
-// 	c.JSON(http.StatusOK, volunteer)
-// }
-
 func DeleteReport(c *gin.Context) {
-	// Extract the report ID from the URL path
+
 	reportID := c.Param("id")
 
-	// Ensure reportID is a valid integer
 	id, err := strconv.ParseUint(reportID, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid report ID"})
@@ -694,7 +640,6 @@ func DeleteReport(c *gin.Context) {
 		return
 	}
 
-	// Return success response
 	c.JSON(http.StatusOK, gin.H{"message": "Report deleted successfully"})
 }
 
@@ -709,7 +654,6 @@ func GetUserChatMessagesHandler(c *gin.Context) {
 	fmt.Println(messages)
 }
 
-// SendMessageHandler sends a message to a specific user
 func SendMessageHandler(c *gin.Context) {
 	userIdStr := c.Param("userId")
 	userId, err := strconv.ParseUint(userIdStr, 10, 64)
@@ -718,7 +662,6 @@ func SendMessageHandler(c *gin.Context) {
 		return
 	}
 
-	// Extract message content from the request body
 	var message struct {
 		Content string `json:"content"`
 	}
@@ -727,7 +670,6 @@ func SendMessageHandler(c *gin.Context) {
 		return
 	}
 
-	// Save the message to the database
 	newMessage := model.MessageModel{
 		Content:   message.Content,
 		Sender:    "Admin",
@@ -742,73 +684,42 @@ func SendMessageHandler(c *gin.Context) {
 }
 
 func GetVolunteerByCityHandler(c *gin.Context) {
-    // Get the city from the query parameters
-    city := c.Query("city")
 
-    // Fetch volunteer details based on the entered city
-    volunteer := model.Volunteer{}
-    if err := database.DB.Where("city = ?", city).First(&volunteer).Error; err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "No volunteer found for the specified city"})
-        return
-    }
+	city := c.Query("city")
 
-    // Send WhatsApp message to the volunteer using Twilio
-    err := sendWhatsAppMessage(volunteer.MobileNumber, "You should reach the location along with your team as soon as possible")
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send WhatsApp message"})
-        return
-    }
+	volunteer := model.Volunteer{}
+	if err := database.DB.Where("city = ?", city).First(&volunteer).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No volunteer found for the specified city"})
+		return
+	}
 
-    // Remove volunteer from the database after sending the message
-    if err := database.DB.Delete(&volunteer).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete volunteer from database"})
-        return
-    }
+	err := sendWhatsAppMessage(volunteer.MobileNumber, "You should reach the location along with your team as soon as possible")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send WhatsApp message"})
+		return
+	}
 
-    // Return volunteer details as JSON response
-    c.JSON(http.StatusOK, gin.H{
-        "name":  volunteer.Name,
-        "phone": volunteer.MobileNumber,
-    })
-}
-func DeleteDisasterReportHandler(c *gin.Context) {
-    // Get the report ID from the query parameters
-    reportID := c.Query("id")
-    var reportIDUint uint64
-    var err error
-    if reportID != "" {
-        reportIDUint, err = strconv.ParseUint(reportID, 10, 64)
-        if err != nil {
-            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid report ID"})
-            return
-        }
-    } else {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Report ID not provided"})
-        return
-    }
+	if err := database.DB.Delete(&volunteer).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete volunteer from database"})
+		return
+	}
 
-    // Delete the disaster report from the database
-    if err := database.DB.Where("id = ?", reportIDUint).Delete(&model.DisasterReport{}).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete disaster report from database"})
-        return
-    }
-
-    // Return success message
-    c.JSON(http.StatusOK, gin.H{"message": "Disaster report deleted successfully"})
+	c.JSON(http.StatusOK, gin.H{
+		"name":  volunteer.Name,
+		"phone": volunteer.MobileNumber,
+	})
 }
 
-// sendWhatsAppMessage sends a WhatsApp message to the specified phone number using Twilio
-func sendWhatsAppMessage(phoneNumber, message string) error {
-	// Load Twilio credentials from environment variables
+func sendWhatsAppMessage(_, _ string) error {
+
 	accountSID := os.Getenv("TWILIO_ACCOUNT_SID")
 	authToken := os.Getenv("TWILIO_AUTH_TOKEN")
-	// whatsappNumber := os.Getenv("TWILIO_WHATSAPP_NUMBER")
 
 	client := twilio.NewRestClientWithParams(twilio.ClientParams{
 		Username: accountSID,
 		Password: authToken,
 	})
-	// Create WhatsApp message
+
 	params := &twilioApi.CreateMessageParams{}
 	params.SetTo("whatsapp:+919508223747")
 	params.SetFrom("whatsapp:+14155238886")
@@ -824,39 +735,49 @@ func sendWhatsAppMessage(phoneNumber, message string) error {
 }
 
 func GetDisasterTypesHandler(c *gin.Context) {
-    disasters, err := FetchDisasterssFromDatabase()
-    if err != nil {
-        c.HTML(http.StatusInternalServerError, "error.html", gin.H{"error": err.Error()})
-        return
-    }
+	disasters, err := FetchDisasterssFromDatabase()
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "error.html", gin.H{"error": err.Error()})
+		return
+	}
 
-    // Render the HTML template with the disaster types
-    c.HTML(http.StatusOK, "ReportDisaster.html", gin.H{
-        "Disasters": disasters,
-    })
+	c.HTML(http.StatusOK, "ReportDisaster.html", gin.H{
+		"Disasters": disasters,
+	})
 }
 func FetchDisasterssFromDatabase() ([]model.NaturalDisaster, error) {
-    var disasters []model.NaturalDisaster
-    if err := database.DB.Find(&disasters).Error; err != nil {
-        return nil, err
-    }
-    return disasters, nil
+	var disasters []model.NaturalDisaster
+	if err := database.DB.Find(&disasters).Error; err != nil {
+		return nil, err
+	}
+	return disasters, nil
 }
 func GetAllDisasterss(c *gin.Context) {
-    disasters, err := FetchDisasterssFromDatabase()
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
+	disasters, err := FetchDisasterssFromDatabase()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(200, gin.H{"disasters": disasters})
-    // if c.Request.Header.Get("Content-Type") == "application/json" {
-    //     c.JSON(200, gin.H{"disasters": disasters})
-	// 	fmt.Println("done")
-    // } else {
-    //     c.HTML(http.StatusOK, "ReportDisaster.html", gin.H{"disasters": disasters})
-    // }
+
+}
+func DeleteReportHandler(c *gin.Context) {
+
+	id := c.Param("id")
+
+	if err := DeleteReportFromDatabase(id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete report"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Report deleted successfully"})
 }
 
-
-
-
+func DeleteReportFromDatabase(id string) error {
+	var report model.DisasterReport
+	result := database.DB.Where("id = ?", id).First(&report)
+	if result.Error != nil {
+		return result.Error
+	}
+	return database.DB.Delete(&report).Error
+}

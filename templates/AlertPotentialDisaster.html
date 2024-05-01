@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,6 +16,7 @@
             padding: 0;
             background-color: #f0f0f0;
         }
+
         .container {
             max-width: 600px;
             margin: 50px auto;
@@ -23,10 +25,19 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        h1, h2, h3, h4, h5, h6 {
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
             color: #333;
         }
-        input[type="text"], input[type="number"], textarea {
+
+        input[type="text"],
+        input[type="number"],
+        textarea {
             width: 100%;
             padding: 10px;
             margin-top: 5px;
@@ -35,6 +46,7 @@
             border-radius: 5px;
             box-sizing: border-box;
         }
+
         button {
             padding: 10px 20px;
             background-color: #007bff;
@@ -43,15 +55,18 @@
             border-radius: 4px;
             cursor: pointer;
         }
+
         button:hover {
             background-color: #0056b3;
         }
+
         #map {
             height: 300px;
             margin-bottom: 20px;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Report Potential Disaster</h1>
@@ -87,70 +102,71 @@
 
     <!-- Include necessary JavaScript libraries -->
     <script>
-       var map;
-    
-    // Function to initialize the map
-    function initMap(latitude, longitude) {
-        map = L.map('map').setView([latitude, longitude], 10); 
-        // Initialize the map
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-        }).addTo(map);
-        // Add a marker to the map
-        var marker = L.marker([latitude, longitude]).addTo(map);
-        // Add a popup to the marker
-        marker.bindPopup("<b>Disaster Location</b>").openPopup();
-    }
+        var map;
 
-    // Event listener for form submission
-    document.getElementById('disasterReportForm').addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent default form submission
+        // Function to initialize the map
+        function initMap(latitude, longitude) {
+            map = L.map('map').setView([latitude, longitude], 10);
+            // Initialize the map
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+            }).addTo(map);
+            // Add a marker to the map
+            var marker = L.marker([latitude, longitude]).addTo(map);
+            // Add a popup to the marker
+            marker.bindPopup("<b>Disaster Location</b>").openPopup();
+        }
 
-        // Get form values
-        var disasterType = document.getElementById('disasterType').value;
-        var severity = document.getElementById('severity').value;
-        var description = document.getElementById('description').value;
-        var latitude = parseFloat(document.getElementById('latitude').value);
-        var longitude = parseFloat(document.getElementById('longitude').value);
+        // Event listener for form submission
+        document.getElementById('disasterReportForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent default form submission
 
-        // Initialize the map with the reported coordinates
-        initMap(latitude, longitude);
+            // Get form values
+            var disasterType = document.getElementById('disasterType').value;
+            var severity = document.getElementById('severity').value;
+            var description = document.getElementById('description').value;
+            var latitude = parseFloat(document.getElementById('latitude').value);
+            var longitude = parseFloat(document.getElementById('longitude').value);
 
-        // Create data object to send to the server
-        var requestData = {
-            disasterType: disasterType,
-            severity: severity,
-            description: description,
-            latitude: latitude,
-            longitude: longitude
-        };
+            // Initialize the map with the reported coordinates
+            initMap(latitude, longitude);
 
-        // Send data to the server
-        fetch('/api/AlertPotentialDisaster', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestData)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Handle success response from the server
-            console.log(data); // Log the response
-            alert('Potential disaster alert request submitted successfully');
-            // You can redirect or perform any other action here after successful submission
-        })
-        .catch(error => {
-            // Handle error
-            console.error('Error:', error);
-            alert('Failed to submit potential disaster alert request');
+            // Create data object to send to the server
+            var requestData = {
+                disasterType: disasterType,
+                severity: severity,
+                description: description,
+                latitude: latitude,
+                longitude: longitude
+            };
+
+            // Send data to the server
+            fetch('/api/AlertPotentialDisaster', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Handle success response from the server
+                    console.log(data); // Log the response
+                    alert('Potential disaster alert request submitted successfully');
+                    // You can redirect or perform any other action here after successful submission
+                })
+                .catch(error => {
+                    // Handle error
+                    console.error('Error:', error);
+                    alert('Failed to submit potential disaster alert request');
+                });
         });
-    });
     </script>
 </body>
+
 </html>

@@ -1,5 +1,7 @@
 package model
+
 import "time"
+
 type UserModel struct {
 	ID       uint `gorm:"primary key"`
 	Name     string
@@ -15,7 +17,7 @@ type VerifyOTP struct {
 }
 
 type DisasterReport struct {
-	ID uint `json:"id" gorm:"primaryKey;autoIncrement"`
+	ID           uint   `json:"id" gorm:"primaryKey;autoIncrement"`
 	Latitude     string `form:"Latitude" gorm:"not null"`
 	Longitude    string `json:"longitude" gorm:"not null"`
 	DisasterType string `json:"DisasterType" gorm:"not null"`
@@ -24,15 +26,13 @@ type DisasterReport struct {
 	FileURL      string `json:"fileURL"`
 }
 
-
 type AssistanceRequest struct {
 	ID                uint   `json:"id" gorm:"primaryKey;autoIncrement"`
 	ResourceType      string `json:"resourceType" binding:"required"`
 	ResourceName      string `json:"resourceName" binding:"required"`
-	Quantity          string    `json:"quantity" binding:"required"`
+	Quantity          string `json:"quantity" binding:"required"`
 	AdditionalComment string `json:"additionalComment"`
 }
-
 
 type AlertPotentialDisasterReport struct {
 	DisasterType string  `form:"disasterType" binding:"required"`
@@ -43,40 +43,39 @@ type AlertPotentialDisasterReport struct {
 }
 
 type Alert struct {
-	Type       string    `json:"type"`
-	Severity   string    `json:"severity"`
-	User       string    `json:"user"`
-	Message    string    `json:"message"`
-	Timestamp  time.Time `json:"timestamp"`
-	Latitude   float64   `json:"latitude"`
-	Longitude  float64   `json:"longitude"`
+	Type      string    `json:"type"`
+	Severity  string    `json:"severity"`
+	User      string    `json:"user"`
+	Message   string    `json:"message"`
+	Timestamp time.Time `json:"timestamp"`
+	Latitude  float64   `json:"latitude"`
+	Longitude float64   `json:"longitude"`
 }
 
 type Resources struct {
 	ID           uint   `json:"id" gorm:"primaryKey;autoIncrement"`
-    Name         string `json:"name"`
-    Type         string `json:"type"`
-    Availability string   `json:"availability"`
-    Quantity     int    `json:"quantity"`
+	Name         string `json:"name"`
+	Type         string `json:"type"`
+	Availability string `json:"availability"`
+	Quantity     int    `json:"quantity"`
 }
 
 type NaturalDisaster struct {
-    ID   uint   `json:"id" gorm:"primaryKey;autoIncrement"`
-    Name string `json:"name"`
+	ID   uint   `json:"id" gorm:"primaryKey;autoIncrement"`
+	Name string `json:"name"`
 }
 
 type Volunteer struct {
-    ID           uint   `gorm:"primaryKey;autoIncrement"`
-    Name         string `form:"name" binding:"required"`
-    City         string `form:"city" binding:"required"`
-    MobileNumber string `form:"mobile_number" binding:"required"`
+	ID           uint   `gorm:"primaryKey;autoIncrement"`
+	Name         string `form:"name" binding:"required"`
+	City         string `form:"city" binding:"required"`
+	MobileNumber string `form:"mobile_number" binding:"required"`
 }
 
-
 type MessageModel struct {
-    ID        uint `gorm:"primary_key"`
-    Content   string
-    Sender    string
-    UserID    uint
-    CreatedAt time.Time
+	ID        uint `gorm:"primary_key"`
+	Content   string
+	Sender    string
+	UserID    uint
+	CreatedAt time.Time
 }

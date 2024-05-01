@@ -109,13 +109,10 @@ func Valadmin(c *gin.Context) {
 			return
 		}
 		volunteers, err := FetchVolunteersFromDatabase()
-        if err != nil {
-            c.HTML(http.StatusInternalServerError, "error.html", gin.H{"error": err.Error()})
-            return
-        }
-
-
-
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "error.html", gin.H{"error": err.Error()})
+			return
+		}
 
 		if c.Request.Header.Get("Content-Type") == "application/json" {
 			c.JSON(200, gin.H{
@@ -127,7 +124,7 @@ func Valadmin(c *gin.Context) {
 				"Resources":               resources,
 				"LatestDisasterReport":    latestReport,
 				"PotentialDisasterAlerts": alerts,
-				"Volunteers":              volunteers, 
+				"Volunteers":              volunteers,
 				"Error":                   Err,
 			})
 		} else {
@@ -140,7 +137,7 @@ func Valadmin(c *gin.Context) {
 				"Resources":               resources,
 				"LatestDisasterReport":    latestReport,
 				"PotentialDisasterAlerts": alerts,
-				"Volunteers":              volunteers, 
+				"Volunteers":              volunteers,
 				"Error":                   Err,
 			})
 			Error = ""
@@ -152,16 +149,16 @@ func Valadmin(c *gin.Context) {
 }
 
 func FetchVolunteersFromDatabase() ([]model.Volunteer, error) {
-    var volunteers []model.Volunteer
-    if err := database.DB.Find(&volunteers).Error; err != nil {
-        return volunteers, err
-    }
-    return volunteers, nil
+	var volunteers []model.Volunteer
+	if err := database.DB.Find(&volunteers).Error; err != nil {
+		return volunteers, err
+	}
+	return volunteers, nil
 }
 
 func GetLatestDisasterCoordinates(c *gin.Context) {
 	var latestReport model.DisasterReport
-	
+
 	// Fetch the latest disaster report from the database ordered by the ID column
 	if err := database.DB.Order("id desc").First(&latestReport).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -180,15 +177,13 @@ func GetLatestDisasterCoordinates(c *gin.Context) {
 	c.JSON(http.StatusOK, coordinates)
 }
 
-
 func FetchLatestDisasterReportFromDatabase() (model.DisasterReport, error) {
-    var latestReport model.DisasterReport
-    if err := database.DB.Order("id desc").First(&latestReport).Error; err != nil {
-        return latestReport, err
-    }
-    return latestReport, nil
+	var latestReport model.DisasterReport
+	if err := database.DB.Order("id desc").First(&latestReport).Error; err != nil {
+		return latestReport, err
+	}
+	return latestReport, nil
 }
-
 
 func FetchResourcesFromDatabase() ([]model.Resources, error) {
 	var resources []model.Resources

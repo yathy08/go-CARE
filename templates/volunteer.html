@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +15,7 @@
             background-size: cover;
             background-position: 100%;
         }
+
         .container {
             max-width: 600px;
             margin: 50px auto;
@@ -22,16 +24,19 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         h1 {
             text-align: center;
             color: #333;
         }
+
         label {
             display: block;
             margin-bottom: 10px;
             font-weight: bold;
             color: #555;
         }
+
         input[type="text"] {
             width: 100%;
             padding: 10px;
@@ -40,6 +45,7 @@
             border-radius: 5px;
             box-sizing: border-box;
         }
+
         button[type="submit"] {
             background-color: #4CAF50;
             color: white;
@@ -51,9 +57,11 @@
             font-weight: bold;
             transition: background-color 0.3s;
         }
+
         button[type="submit"]:hover {
             background-color: #45a049;
         }
+
         .error {
             color: red;
             margin-top: 5px;
@@ -61,6 +69,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Volunteer Application Form</h1>
@@ -79,7 +88,7 @@
     </div>
 
     <script>
-        document.getElementById("volunteerForm").addEventListener("submit", function(event) {
+        document.getElementById("volunteerForm").addEventListener("submit", function (event) {
             event.preventDefault();
             var name = document.getElementById("name").value.trim();
             var city = document.getElementById("city").value.trim();
@@ -99,16 +108,17 @@
                 method: "POST",
                 body: formData
             })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                document.getElementById("volunteerForm").reset();
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                alert("Failed to submit volunteer form");
-            });
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    document.getElementById("volunteerForm").reset();
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("Failed to submit volunteer form");
+                });
         });
     </script>
 </body>
+
 </html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,6 +16,7 @@
             background-size: cover;
             background-position: 100%;
         }
+
         .container {
             max-width: 600px;
             margin: 50px auto;
@@ -22,14 +24,22 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             font-weight: 600;
-          text-shadow: 0 0 10px rgba(255, 255, 255, 0.0005); 
-          backdrop-filter: blur(5px);
-          color: #131313;
-        }
-        h1, h2, h3, h4, h5, h6 {
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.0005);
+            backdrop-filter: blur(5px);
             color: #131313;
         }
-        input[type="number"], textarea {
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            color: #131313;
+        }
+
+        input[type="number"],
+        textarea {
             width: 100%;
             padding: 10px;
             margin-top: 5px;
@@ -40,6 +50,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Request Assistance</h1>
@@ -75,7 +86,7 @@
             switch (resourceType) {
                 case 'General':
                     var generalOptions = ['Blankets', 'Clothing', 'Books', 'Rain Gear', 'Towels', 'Ponchos', 'Waterproof Bags', 'Survival Kits', 'Emergency Response Guides', 'Weatherproof Paper', 'Emergency Ponchos', 'Emergency Backpacks'];
-                    generalOptions.forEach(function(option) {
+                    generalOptions.forEach(function (option) {
                         var optionElement = document.createElement('option');
                         optionElement.value = option;
                         optionElement.textContent = option;
@@ -84,7 +95,7 @@
                     break;
                 case 'Shelter':
                     var shelterOptions = ['Tents', 'Sleeping Bags', 'Tarps', 'Portable Toilets', 'Mosquito Nets', 'Plastic Sheeting', 'Emergency Shelters', 'Thermal Blankets'];
-                    shelterOptions.forEach(function(option) {
+                    shelterOptions.forEach(function (option) {
                         var optionElement = document.createElement('option');
                         optionElement.value = option;
                         optionElement.textContent = option;
@@ -93,7 +104,7 @@
                     break;
                 case 'Medical':
                     var medicalOptions = ['First Aid Kits', 'Hygiene Products', 'Diapers', 'Hand Sanitizer', 'Insect Repellent', 'N95 Masks', 'Sunscreen', 'Feminine Hygiene Products', 'Dust Masks', 'Surgical Masks', 'Heat Packs'];
-                    medicalOptions.forEach(function(option) {
+                    medicalOptions.forEach(function (option) {
                         var optionElement = document.createElement('option');
                         optionElement.value = option;
                         optionElement.textContent = option;
@@ -102,7 +113,7 @@
                     break;
                 case 'Tools':
                     var toolsOptions = ['Flashlights', 'Batteries', 'Compasses', 'Waterproof Matches', 'Candles', 'Hand Warmers', 'Ice Melt', 'Chain Saws', 'Duct Tape', 'Portable Stoves', 'Gloves', 'Can Openers', 'Shovels', 'Utility Knives', 'Headlamps', 'Matches', 'Rope', 'Multitools', 'Fire Starters'];
-                    toolsOptions.forEach(function(option) {
+                    toolsOptions.forEach(function (option) {
                         var optionElement = document.createElement('option');
                         optionElement.value = option;
                         optionElement.textContent = option;
@@ -111,7 +122,7 @@
                     break;
                 case 'Power':
                     var powerOptions = ['Power Generators', 'Fuel', 'Solar Chargers', 'Propane', 'Solar Panels', 'Portable Chargers'];
-                    powerOptions.forEach(function(option) {
+                    powerOptions.forEach(function (option) {
                         var optionElement = document.createElement('option');
                         optionElement.value = option;
                         optionElement.textContent = option;
@@ -120,7 +131,7 @@
                     break;
                 case 'Communication':
                     var communicationOptions = ['Communication Devices', 'Radios', 'Walkie-Talkies', 'Hand Crank Radios', 'Weather Radios'];
-                    communicationOptions.forEach(function(option) {
+                    communicationOptions.forEach(function (option) {
                         var optionElement = document.createElement('option');
                         optionElement.value = option;
                         optionElement.textContent = option;
@@ -129,7 +140,7 @@
                     break;
                 case 'Water':
                     var waterOptions = ['Water Filters', 'Bottled Water', 'Water Purification Tablets', 'Water Storage Containers', 'Collapsible Water Containers'];
-                    waterOptions.forEach(function(option) {
+                    waterOptions.forEach(function (option) {
                         var optionElement = document.createElement('option');
                         optionElement.value = option;
                         optionElement.textContent = option;
@@ -138,7 +149,7 @@
                     break;
                 case 'Safety':
                     var safetyOptions = ['Fire Extinguishers', 'Life Jackets', 'Life Rafts', 'Emergency Whistles', 'Safety Goggles', 'Reflective Vests', 'Whistles', 'Safety Harnesses', 'Signal Mirrors', 'Safety Whistles', 'Signal Flares'];
-                    safetyOptions.forEach(function(option) {
+                    safetyOptions.forEach(function (option) {
                         var optionElement = document.createElement('option');
                         optionElement.value = option;
                         optionElement.textContent = option;
@@ -147,7 +158,7 @@
                     break;
                 case 'Food':
                     var foodOptions = ['Emergency Rations', 'Pet Food', 'Non-perishable Foods', 'Canned Food', 'Emergency Food Bars'];
-                    foodOptions.forEach(function(option) {
+                    foodOptions.forEach(function (option) {
                         var optionElement = document.createElement('option');
                         optionElement.value = option;
                         optionElement.textContent = option;
@@ -160,9 +171,9 @@
             }
         }
 
-        document.getElementById('assistanceForm').addEventListener('submit', function(event) {
+        document.getElementById('assistanceForm').addEventListener('submit', function (event) {
             event.preventDefault(); // Prevent default form submission
-            
+
             // Get form values
             var resourceName = document.getElementById('resourceName').value;
             var resourceType = document.getElementById('resourceType').value;
@@ -185,24 +196,25 @@
                 },
                 body: JSON.stringify(requestData)
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Handle success response from the server
-                console.log(data); // Log the response
-                alert('Assistance request submitted successfully');
-                // You can redirect or perform any other action here after successful submission
-            })
-            .catch(error => {
-                // Handle errors
-                console.error('Error:', error);
-                alert('Failed to submit assistance request. Please try again.');
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Handle success response from the server
+                    console.log(data); // Log the response
+                    alert('Assistance request submitted successfully');
+                    // You can redirect or perform any other action here after successful submission
+                })
+                .catch(error => {
+                    // Handle errors
+                    console.error('Error:', error);
+                    alert('Failed to submit assistance request. Please try again.');
+                });
         });
     </script>
 </body>
+
 </html>
