@@ -83,41 +83,51 @@
             <label for="mobile">Mobile Number:</label>
             <input type="text" id="mobile" name="mobile_number" placeholder="Enter your mobile number">
 
+            <label for="availability">Availability:</label>
+            <select id="availability" name="availability">
+            <option value="available">Available</option>
+            <option value="not-available">Not-Available</option>
+            </select>
+
             <button type="submit">Submit Application</button>
         </form>
     </div>
 
     <script>
-        document.getElementById("volunteerForm").addEventListener("submit", function (event) {
-            event.preventDefault();
-            var name = document.getElementById("name").value.trim();
-            var city = document.getElementById("city").value.trim();
-            var mobile = document.getElementById("mobile").value.trim();
+    document.getElementById("volunteerForm").addEventListener("submit", function (event) {
+    event.preventDefault();
+    var name = document.getElementById("name").value.trim();
+    var city = document.getElementById("city").value.trim();
+    var mobile = document.getElementById("mobile").value.trim();
+    var availability = document.getElementById("availability").value; // Get selected availability
 
-            if (name === "" || city === "" || mobile === "") {
-                alert("Please fill in all fields.");
-                return;
-            }
+    if (name === "" || city === "" || mobile === "" ) {
+        alert("Please fill in all fields.");
+        return;
+    }
 
-            var formData = new FormData();
-            formData.append("name", name);
-            formData.append("city", city);
-            formData.append("mobile_number", mobile);
+    var formData = new FormData();
+    formData.append("name", name);
+    formData.append("city", city);
+    formData.append("mobile_number", mobile);
+    formData.append("availability", availability); // Append availability to form data
+    console.log(formData)
 
-            fetch("/api/submit-volunteerform", {
-                method: "POST",
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    alert(data.message);
-                    document.getElementById("volunteerForm").reset();
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    alert("Failed to submit volunteer form");
-                });
-        });
+    fetch("/api/submit-volunteerform", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        document.getElementById("volunteerForm").reset();
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("Failed to submit volunteer form");
+    });
+});
+
     </script>
 </body>
 

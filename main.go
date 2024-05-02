@@ -20,6 +20,7 @@ func main() {
 	r := gin.Default()
 
 	r.LoadHTMLGlob("templates/*")
+	r.Static("/Logos", "./Logos")
 
 	store := cookie.NewStore([]byte("secret"))
 	r.Use(sessions.Sessions("mysession", store))
@@ -65,12 +66,14 @@ func main() {
 	r.DELETE("/api/delete-volunteer/:name", routes.DeleteVolunteerByName)
 	r.GET("/api/volunteer", routes.GetVolunteerByCityHandler)
 	r.GET("/api/chat/:userId", routes.GetUserChatMessagesHandler)
-
+	r.POST("/send-message-to-volunteer", routes.SendMessageToVolunteerHandler)
 	r.GET("/api/disaster-types", routes.GetDisasterTypesHandler)
-
 	r.POST("/api/chat/:userId", routes.SendMessageHandler)
 	r.GET("/fetchAllDisasterss", routes.GetAllDisasterss)
 	r.DELETE("/deleteDisasterReport/:id", routes.DeleteReportHandler)
+	r.POST("/change-availability", routes.ChangeAvailabilityHandler)
+
+	r.GET("/get-volunteer-details", routes.GetVolunteerDetailsHandler)
 
 	r.Run(":3000")
 }

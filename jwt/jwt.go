@@ -18,7 +18,7 @@ type User struct {
 	jwt.StandardClaims
 }
 
-func JwtToken(c *gin.Context, email string, role string) {
+func JwtToken(c *gin.Context, email, role,userName string) {
 	tokenkey, err := CreateToken(email, role)
 	if err != nil {
 		fmt.Println("failed to create new token")
@@ -26,6 +26,7 @@ func JwtToken(c *gin.Context, email string, role string) {
 
 	session := sessions.Default(c)
 	session.Set(role, tokenkey)
+	session.Set("username",userName)
 	session.Save()
 	check := session.Get(role)
 	fmt.Println(check)

@@ -70,6 +70,7 @@ type Volunteer struct {
 	Name         string `form:"name" binding:"required"`
 	City         string `form:"city" binding:"required"`
 	MobileNumber string `form:"mobile_number" binding:"required"`
+	Availability string `form:"availability"  binding:"required"`
 }
 
 type MessageModel struct {

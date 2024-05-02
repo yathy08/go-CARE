@@ -49,7 +49,7 @@ func PostAdmin(c *gin.Context) {
 		if c.Request.Header.Get("Content-Type") == "application/json" {
 			c.JSON(http.StatusOK, gin.H{"message": "Admin logged in successfully"})
 		} else {
-			jwt.JwtToken(c, Verify.Email, RoleAdmin)
+			jwt.JwtToken(c, Verify.Email, RoleAdmin,Verify.Name)
 			c.Redirect(http.StatusSeeOther, "/valadmin")
 		}
 	} else {

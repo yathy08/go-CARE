@@ -1,20 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <!-- Include Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <!-- Include necessary CSS stylesheets -->
+    <title>Go-Care AdminPage</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
+        /* Adding smooth scrolling behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Media query for adjusting navbar items on smaller screens */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+        }
+        
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            background-color: #f3640c;
+            overflow-x: hidden;
+            padding-top: 20px; /* Increased top padding to avoid overlap */
+        }
+        
+        .sidebar a {
+            padding: 10px 19px;
+            text-decoration: none;
+            font-size: 16px;
+            color: #2c2928;
+            display: block;
+        }
+        
+        .sidebar a:hover {
+            color: #f1f1f1;
+        }
+        
+        .main-content {
+            margin-left: 250px; /* Decreased left margin to make space for the sidebar */
+            padding: 20px;
+            margin-top: 70px; /* Added top margin to prevent overlap with the navbar */
+        }
+        
+        /* Style for the fixed navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            bottom: 10;
+            width: calc(100% - 230px); /* Adjusted width to accommodate the sidebar */
+            background-color: #111;
+            z-index: 1000; /* Ensure the navbar is above other content */
+            padding: 10px 15px;
+            left: 250px; /* Added left position to avoid overlapping with the sidebar */
+        }
+        
+        /* Style for the navbar text */
+        .navbar-text {
+            color: #fff;
+            font-size: 20px;
+            margin-left: 300px;
+        }
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f0f0f0;
-            background-image: url(https://images.pexels.com/photos/691668/pexels-photo-691668.jpeg?auto=compress&cs=tinysrgb&w=2160);
+            background-image: url(https://images.pexels.com/photos/9376279/pexels-photo-9376279.jpeg?auto=compress&cs=tinysrgb&w=2160);
         }
 
         .container {
@@ -433,23 +490,58 @@
             cursor: pointer;
             border-radius: 5px;
         }
+        .dialog-box {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    /* Add width and max-height to limit the size of the modal */
+    width: 400px;
+    max-height: calc(100% - 40px); /* 40px is the padding */
+    overflow-y: auto; /* Enable vertical scroll if needed */
+    padding: 20px;
+}
+
+.dialog-box-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
     </style>
 </head>
-
 <body>
+    
+    <a href="/adminlogout" style="color: #fff;"><button type="submit" class="btn btn-primary ml-auto">Logout</button></a>
 
+<div class="sidebar">
+        <img src="../Logos/Go-Care (2).png" alt="GO-CARE Logo" style="width: 200px; height: 130px; display: block; margin: 0 auto 20px;">
+       
+    <a href="#Users">Users Management</a>
+    <a href="#Disasters">Disaster Reports</a>
+    <a href="#Assistance">Request Assistance</a>
+    <a href="#Potential">Alert Potential Disaster</a>
+    <a href="#Weather">Weather Updates</a>
+    <a href="#Ndisasters">Natural Disasters</a>
+    <a href="#Resources">Resources Inventory</a>
+    <a href="#Volunteers">Volunteers Inventory</a>
+    <a href="/adminlogout" style="color: #fff;"><button type="submit" class="btn btn-primary ml-auto">Logout</button></a>
+</div>
 
-
-    <div class="header">
-        <h1>Admin Dashboard</h1>
-        <a href="/adminlogout"><button type="submit">Logout</button></a>
-    </div>
-
+<div class="main-content">
+    <h2 id="Users"></h2>
     <div class="container">
-
-        <h3>User Management</h3>
+        <div class="dashboard">
         <p style="color: #f44336;">{{.Error}}</p>
-
+        <h2 style="color: #2994c2;">User Management</h2>
         <table class="table">
             <thead>
                 <tr>
@@ -466,166 +558,151 @@
                     <td>{{.Name}}</td>
                     <td>{{.Email}}</td>
                     <td>
-                        <a href="/block/{{.ID}}" data-id="1"><button
-                                class="btn btn-delete btn-delete-user">{{.Status}}</button></a>
-                        <a href="/update/{{.ID}}" data-id="1"><button
-                                class="btn btn-edit btn-edit-user">Update</button></a>
-                        <a href="/delete/{{.ID}}" data-id="1"><button
-                                class="btn btn-delete btn-delete-user">Delete</button></a>
+                        <a href="/block/{{.ID}}" data-id="1"><button class="btn btn-delete btn-delete-user">{{.Status}}</button></a>
+                        <a href="/update/{{.ID}}" data-id="1"><button class="btn btn-edit btn-edit-user">Update</button></a>
+                        <a href="/delete/{{.ID}}" data-id="1"><button class="btn btn-delete btn-delete-user">Delete</button></a>
                     </td>
                 </tr>
                 {{end}}
             </tbody>
         </table>
-
         <form action="/search" method="GET">
             <input type="text" name="query" placeholder="Search...">
-            <button type="submit" class="btn">Search</button>
+            <button type="submit" class="btn btn-primary ml-auto">Search</button>
         </form>
     </div>
+</div>
+</div>
 
-    <!--            
-            <div class="ccontainer">
-                <div class="users-list">
-                    {{range .Users}}
-                    <div class="user" data-id="{{.ID}}">{{.Name}}</div>
-                    {{end}}
-                </div>
-                <div id="messageModal" class="chat-window">
-                  <div class="chat-header">
-                    <h3 id="chat-username"></h3>
-                    <button id="close-chat">Close</button>
-                  </div>
-                  <div id="messages-container" class="messages-container">
-                    </div>
-                  <div class="input-container">
-                    <input type="text" id="message-input" placeholder="Type your message...">
-                    <button id="send-button">Send</button>
-                  </div>
-                </div>
-              </div> -->
 
-    <div class="container">
-        <h2 style="color: #0f1b07;">Disaster Reports</h2>
-        <div class="dashboard">
+<h2 id="Disasters"></h2>
+<div class="main-content">
+
+<div class="container">
+   
+    <div class="dashboard">
+        <h2 style="color: #cb0b2b;">Disaster Reports Section</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Latitude</th>
+                    <th>Longitude</th>
+                    <th>Disaster Type</th>
+                    <th>Severity</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                {{range .Reports}}
+                <tr class="disaster-row">
+                    <td>{{.Latitude}}</td>
+                    <td>{{.Longitude}}</td>
+                    <td>{{.DisasterType}}</td>
+                    <td>{{.Severity}}</td>
+                    <td>{{.Description}}</td>
+                    <td>
+                        <button class="btn" onclick="sendHelp('{{ .Latitude }}', '{{ .Longitude }}')">Send
+                            Help</button>
+                        <button class="btn" onclick="deleteReport('{{ .ID }}')">Mark As Solved</button>
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        <a href="#" class="btn btn-primary ml-auto" id="viewAllButton">View All Disasters</a>
+        <a href="#" class="btn btn-primary ml-auto" id="hideAdditionalButton" style="display: none;">Hide Additional Disasters</a>
+    </div>
+</div>
+</div>
+<div class="main-content">
+<h2 id="Assistance"></h2>
+<div class="container">
+    <div class="dashboard">
+        <h2 style="color: #4CAF50;">Assistance Requests</h2>
+        <div class="assistance-container" id="assistanceContainer">
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Latitude</th>
-                        <th>Longitude</th>
-                        <th>Disaster Type</th>
-                        <th>Severity</th>
-                        <th>Description</th>
-                        <th>Actions</th>
+                        <th>Resource Type</th>
+                        <th>Quantity</th>
+                        <th>Additional Comments</th>
+                        <th>Resource Name</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
 
-                    {{range .Reports}}
-                    <tr class="disaster-row">
-                        <td>{{.Latitude}}</td>
-                        <td>{{.Longitude}}</td>
-                        <td>{{.DisasterType}}</td>
-                        <td>{{.Severity}}</td>
-                        <td>{{.Description}}</td>
-                        <td>
-                            <button class="btn" onclick="sendHelp('{{ .Latitude }}', '{{ .Longitude }}')">Send
-                                Help</button>
-                            <button class="btn" onclick="deleteReport('{{ .ID }}')">Mark As Solved</button>
-                        </td>
+                    {{range .AssistanceRequests}}
+                    <tr>
+                        <td>{{.ResourceType}}</td>
+                        <td>{{.Quantity}}</td>
+                        <td>{{.AdditionalComment}}</td>
+                        <td>{{.ResourceName}}</td>
+                        <td><button class="btn" data-id="{{.ID}}">Allocate Resource</button></td>
                     </tr>
                     {{end}}
                 </tbody>
             </table>
-            <a href="#" class="btn" id="viewAllButton">View All Disasters</a>
-            <a href="#" class="btn" id="hideAdditionalButton" style="display: none;">Hide Additional Disasters</a>
         </div>
 
+        <a href="#" class="btn btn-primary ml-auto" id="viewAllAssistanceButton">View All Assistance Requests</a>
+        <a href="#" class="btn btn-primary ml-auto" id="hideAdditionalAssistanceButton" style="display: none;">Hide Additional
+            Assistance Requests</a>
     </div>
+</div>
+</div>
+</div>
 
-    <div class="container">
+<div class="main-content">
+        <h2 id="Potential"></h2>
         <div class="dashboard">
-            <h2 style="color: #4CAF50;">Assistance Requests</h2>
-            <div class="assistance-container" id="assistanceContainer">
-                <table class="table">
+            <h2 style="color:#bd179c">Alert Potential Disasters Section</h3>
+            <div class="disaster-alerts-container" id="disasterAlertsContainer">
+                <table class="disaster-alerts-table">
                     <thead>
                         <tr>
-                            <th>Resource Type</th>
-                            <th>Quantity</th>
-                            <th>Additional Comments</th>
-                            <th>Resource Name</th>
-                            <th>Action</th>
+                            <th>Disaster Type</th>
+                            <th>Severity</th>
+                            <th>Description</th>
+                            <th>Latitude</th>
+                            <th>Longitude</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-
-                        {{range .AssistanceRequests}}
+    
+                        {{range .PotentialDisasterAlerts}}
                         <tr>
-                            <td>{{.ResourceType}}</td>
-                            <td>{{.Quantity}}</td>
-                            <td>{{.AdditionalComment}}</td>
-                            <td>{{.ResourceName}}</td>
-                            <td><button class="btn" data-id="{{.ID}}">Allocate Resource</button></td>
+                            <td>{{.DisasterType}}</td>
+                            <td>{{.Severity}}</td>
+                            <td>{{.Description}}</td>
+                            <td>{{.Latitude}}</td>
+                            <td>{{.Longitude}}</td>
+                            <td>
+                                <button class="btn" onclick="senddHelp('{{ .Latitude }}', '{{ .Longitude }}')">Send
+                                    Help</button>
+                                <button class="btn" onclick="markAsSolved('{{ .DisasterType }}')">Mark As Solved</button>
+                            </td>
+                            </td>
                         </tr>
                         {{end}}
                     </tbody>
                 </table>
             </div>
-
-            <a href="#" class="btn" id="viewAllAssistanceButton">View All Assistance Requests</a>
-            <a href="#" class="btn" id="hideAdditionalAssistanceButton" style="display: none;">Hide Additional
-                Assistance Requests</a>
-
-
-
+            <div class="button-container">
+    
+                <button class="btn" id="viewAllDisasterAlertsButton">View All Potential Disaster Alerts</button>
+                <button class="btn" id="hideAdditionalDisasterAlertsButton" style="display: none;">Hide Additional Potential
+                    Disaster Alerts</button>
+            </div>
         </div>
-    </div>
-    </div>
-
-    <div class="dashboard">
-        <h2 class="section-title">Potential Disaster Alerts</h2>
-        <div class="disaster-alerts-container" id="disasterAlertsContainer">
-            <table class="disaster-alerts-table">
-                <thead>
-                    <tr>
-                        <th>Disaster Type</th>
-                        <th>Severity</th>
-                        <th>Description</th>
-                        <th>Latitude</th>
-                        <th>Longitude</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                    {{range .PotentialDisasterAlerts}}
-                    <tr>
-                        <td>{{.DisasterType}}</td>
-                        <td>{{.Severity}}</td>
-                        <td>{{.Description}}</td>
-                        <td>{{.Latitude}}</td>
-                        <td>{{.Longitude}}</td>
-                        <td>
-                            <button class="btn" onclick="senddHelp('{{ .Latitude }}', '{{ .Longitude }}')">Send
-                                Help</button>
-                            <button class="btn" onclick="markAsSolved('{{ .DisasterType }}')">Mark As Solved</button>
-                        </td>
-                        </td>
-                    </tr>
-                    {{end}}
-                </tbody>
-            </table>
-        </div>
-        <div class="button-container">
-
-            <button class="btn" id="viewAllDisasterAlertsButton">View All Potential Disaster Alerts</button>
-            <button class="btn" id="hideAdditionalDisasterAlertsButton" style="display: none;">Hide Additional Potential
-                Disaster Alerts</button>
-        </div>
-    </div>
-
-
-
+</div>
+    
+<div class="main-content">
+    <div class="container">
+    <h2 id="Weather"></h2>
     <div class="dashboard">
         <h2 style="color:#007bff">Weather Updates</h3>
             <form>
@@ -641,13 +718,89 @@
             </form>
             <div id="weather-info" class="mt-3"></div>
     </div>
+</div>
+</div>
+
+<h2 id="Ndisasters"></h2>
+<div class="main-content">
+    <div class="container">
+    <div class="dashboard">
+        <h2 class="section-title">Natural Disaster Inventory</h2>
+        <button class="botn" id="showAllDisastersButton" onclick="toggleDisasterDisplay()">Show All
+            Disasters</button>
+        <!-- <button id="addDisasterButton" onclick="showAddDisasterModal()">Add New Disaster</button> -->
+        <div class="inventory-table-container">
+            <table class="inventory-table">
+                <thead>
+                    <tr>
+                        <th>Disaster Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="disasterList">
+                    <!-- Use range to loop through the list of disasters -->
+                    {{range .Disasters}}
+                    <tr class="disaster-row">
+                        <td>{{.Name}}</td>
+                        <td>
+                            <button class="btn btn-edit" onclick="editDisaster('{{.ID}}')">Edit</button>
+                            <button class="btn btn-delete" onclick="deleteDisaster('{{.ID}}')">Delete</button>
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
 
 
+<div class="main-content">
+<div id="addDisasterModal">
+    <div class="container">
+        <div class="dashboard">
+    <span class="close" onclick="closeModal('addDisasterModal')">&times;</span>
+        <h1>Add New Disaster</h1>
+        <form id="addDisasterForm" onsubmit="return submitAddDisaster()">
+            <label for="addDisasterName">Disaster Name:</label>
+            <input type="text" id="addDisasterName" name="addDisasterName" required>
+            <button type="submit" class="btn btn-primary">Add Disaster</button>
+        </form>
+    </div>
+</div>
+</div>
+</div>
 
+<div id="editDisasterModal">
+   
+    <div class="main-content">
+        <div class="container">
+            <div class="dashboard">
+        <span class="close" onclick="closeModal('editDisasterModal')">&times;</span>
+        <h1 style="color: #45a049;">Edit Disaster</h1>
+        <form id="editDisasterForm" onsubmit="return submitEditDisaster()">
+            <label for="editDisasterId">Disaster ID:</label>
+            <input type="text" id="editDisasterId" name="editDisasterId" readonly>
+
+            <label for="editDisasterName">Disaster Name:</label>
+            <input type="text" id="editDisasterName" name="editDisasterName" required>
+
+            <button class="botn" type="submit">Save Changes</button>
+        </form>
+    </div>
+</div>
+</div>
+</div>
+
+
+<div class="main-content">
+    <div class="container">
+    <h2 id="Resources"></h2>
     <div class="dashboard">
         <h2 class="section-title">Resource Inventory</h2>
         <button id="showFewButton" onclick="showFewResources()">Show Few Resources</button>
-        <div class="inventory-table-container">
+        
             <table class="inventory-table">
                 <thead>
                     <tr>
@@ -659,7 +812,6 @@
                     </tr>
                 </thead>
                 <tbody id="resourceList">
-                    <!-- Use range to loop through the list of resources -->
                     {{range .Resources}}
                     <tr class="resource-row {{if .Availability}}available{{else}}unavailable{{end}}">
                         <td>{{.Name}}</td>
@@ -675,13 +827,13 @@
                 </tbody>
             </table>
         </div>
+    </div>
+</div>
 
-
-
+       <div class="main-content">
         <div class="container">
             <div class="dashboard">
-                <div id="addResourceModal" class="modal">
-                    <div class="modal-content">
+                <div id="addResourceModal">
                         <span class="close" onclick="closeModal('addResourceModal')">&times;</span>
                         <h1 style="color: #45a049;">Add Resource</h1>
                         <form id="addResourceForm" onsubmit="return submitAddResource()">
@@ -705,12 +857,12 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="container">
+    </div>
+        
+    <div class="main-content">
+        <!-- <div class="container"> -->
             <div class="dashboard">
-                <div id="editResourceModal" class="modal">
-                    <div class="modal-content">
+                <div id="editResourceModal">
                         <span class="close" onclick="closeModal('editResourceModal')">&times;</span>
                         <h1 style="color: #45a049;">Edit Resource</h1>
                         <form id="editResourceForm" onsubmit="return submitEditResource()">
@@ -733,76 +885,17 @@
 
                             <button class="botn" type="submit">Save Changes</button>
                         </form>
-                    </div>
+                    <!-- </div> -->
                 </div>
             </div>
-        </div>
+    </div>
 
 
+<div class="main-content">    
+        <h2 id="Volunteers"></h2>
         <div class="container">
             <div class="dashboard">
-                <h2 class="section-title">Natural Disaster Inventory</h2>
-                <button class="botn" id="showAllDisastersButton" onclick="toggleDisasterDisplay()">Show All
-                    Disasters</button>
-                <!-- <button id="addDisasterButton" onclick="showAddDisasterModal()">Add New Disaster</button> -->
-                <div class="inventory-table-container">
-                    <table class="inventory-table">
-                        <thead>
-                            <tr>
-                                <th>Disaster Name</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="disasterList">
-                            <!-- Use range to loop through the list of disasters -->
-                            {{range .Disasters}}
-                            <tr class="disaster-row">
-                                <td>{{.Name}}</td>
-                                <td>
-                                    <button class="btn btn-edit" onclick="editDisaster('{{.ID}}')">Edit</button>
-                                    <button class="btn btn-delete" onclick="deleteDisaster('{{.ID}}')">Delete</button>
-                                </td>
-                            </tr>
-                            {{end}}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal for adding a new disaster -->
-        <div id="addDisasterModal" class="modal">
-            <div class="modal-content">
-
-                <span class="close" onclick="closeModal('addDisasterModal')">&times;</span>
-                <h1>Add New Disaster</h1>
-                <form id="addDisasterForm" onsubmit="return submitAddDisaster()">
-                    <label for="addDisasterName">Disaster Name:</label>
-                    <input type="text" id="addDisasterName" name="addDisasterName" required>
-                    <button type="submit" class="btn btn-primary">Add Disaster</button>
-                </form>
-            </div>
-        </div>
-
-        <div id="editDisasterModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeModal('editDisasterModal')">&times;</span>
-                <h1 style="color: #45a049;">Edit Disaster</h1>
-                <form id="editDisasterForm" onsubmit="return submitEditDisaster()">
-                    <label for="editDisasterId">Disaster ID:</label>
-                    <input type="text" id="editDisasterId" name="editDisasterId" readonly>
-
-                    <label for="editDisasterName">Disaster Name:</label>
-                    <input type="text" id="editDisasterName" name="editDisasterName" required>
-
-                    <button class="botn" type="submit">Save Changes</button>
-                </form>
-            </div>
-        </div>
-
-        <div class="container">
-            <h2 style="color: #0f1b07;">Volunteers List</h2>
-            <div class="dashboard">
+                <h2 style="color: #0f1b07;">Volunteers List</h2>
                 <button class="btn" onclick="toggleVolunteers()">Show Volunteers</button>
                 <table class="table">
                     <thead>
@@ -810,7 +903,8 @@
                             <th>Name</th>
                             <th>City</th>
                             <th>Mobile Number</th>
-                            <th>Actions</th>
+                            <th>Availability</th>
+                            <th>Actions</th> 
                         </tr>
                     </thead>
                     <tbody>
@@ -820,8 +914,13 @@
                             <td>{{ .Name }}</td>
                             <td>{{ .City }}</td>
                             <td>{{ .MobileNumber }}</td>
+                            <td>{{ .Availability }}</td>
                             <td>
-                                <button class="botn" onclick="deleteVolunteer('{{ .Name }}')">Remove Volunteer</button>
+                                <div>
+                                <button class="botn btn-primary" onclick="deleteVolunteer('{{ .Name }}')">Remove Volunteer</button>
+                                <button class="btn btn-primary" onclick="sendMessageToVolunteer('{{ .Name }}')">Message Volunteer</button>
+                                <button class="btn btn-primary" onclick="changeAvailability('{{ .Name }}')">Change Status</button>
+                            </div>
                             </td>
                         </tr>
                         {{ end }}
@@ -842,771 +941,855 @@
                             <label for="addMobileNumber">Mobile Number:</label>
                             <input type="text" id="addMobileNumber" name="mobile_number" required>
                         </div>
+                        <label for="availability">Availability</label>
+                        <select id="availability" name="availability">
+                            <option value="available">Available</option>
+                            <option value="not-available">Not-Available</option>
+                            </select>
                         <button class="botn" type="submit">Add Volunteer</button>
                     </form>
                 </div>
             </div>
         </div>
-
-
-        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                // Add Volunteer Form Submission
-                document.getElementById("addVolunteerForm").addEventListener("submit", function (event) {
-                    event.preventDefault();
-                    var formData = new FormData(this);
-                    fetch("/api/add-volunteer", {
-                        method: "POST",
-                        body: formData
-                    })
-                        .then(response => {
-                            if (response.ok) {
-                                return response.json();
-                            } else {
-                                throw new Error("Failed to add volunteer");
-                            }
-                        })
-                        .then(data => {
-                            // Reload the page to display the updated volunteer inventory
-                            location.reload();
-                        })
-                        .catch(error => {
-                            console.error("Error:", error);
-                            alert("Failed to add volunteer");
-                        });
-                });
-            });
-
-            function deleteVolunteer(name) {
-                if (confirm("Are you sure you want to delete this volunteer?")) {
-                    // Send delete request to server
-                    fetch("/api/delete-volunteer/" + name, {
-                        method: "DELETE"
-                    })
-                        .then(response => {
-                            if (response.ok) {
-                                // Volunteer deleted successfully, reload the page
-                                location.reload();
-                            } else {
-                                // Failed to delete volunteer, show error message
-                                throw new Error("Failed to delete volunteer");
-                            }
-                        })
-                        .catch(error => {
-                            console.error("Error:", error);
-                            alert(error.message);
-                        });
-                }
-            }
-
-
-            let showAlll = false;
-
-            function toggleVolunteers() {
-                const rows = document.querySelectorAll('.volunteer-row');
-                if (showAlll) {
-                    // Show only 10 rows
-                    for (let i = 0; i < rows.length; i++) {
-                        if (i < 10) {
-                            rows[i].style.display = 'table-row';
-                        } else {
-                            rows[i].style.display = 'none';
-                        }
-                    }
-                    showAlll = false;
-                } else {
-                    // Show all rows
-                    rows.forEach(row => {
-                        row.style.display = 'table-row';
-                    });
-                    showAlll = true;
-                }
-            }
-
-
-            function getWeather() {
-                var lat = document.getElementById("lat").value;
-                var lon = document.getElementById("lon").value;
-                var apiKey = 'e937eebc798a088bcc232b10526f59ff'; // Replace with your OpenWeatherMap API key
-                var url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`;
-
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        var temperatureCelsius = (data.main.temp - 273.15).toFixed(2);
-                        var weatherInfo = `
-                        <p>Temperature: ${temperatureCelsius} °C</p>
-                        <p>Description: ${data.weather[0].description}</p>
-                        <p>Humidity: ${data.main.humidity}%</p>
-                    `;
-                        document.getElementById("weather-info").innerHTML = weatherInfo;
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-            }
-
-
-
-            document.addEventListener('DOMContentLoaded', function () {
-                // Hide all disasters except the first one initially
-                const disasters = document.querySelectorAll('.disaster-row'); // Use the class "disaster-row"
-                disasters.forEach(function (disaster, index) {
-                    if (index !== 0) {
-                        disaster.style.display = 'none';
-                    }
-                });
-
-                // Add click event listener to the "View All Disasters" button
-                const viewAllButton = document.getElementById('viewAllButton');
-                viewAllButton.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    disasters.forEach(function (disaster) {
-                        disaster.style.display = 'table-row'; // Show all disasters
-                    });
-                    // Hide the "View All Disasters" button
-                    viewAllButton.style.display = 'none';
-
-                    // Show the "Hide Additional Disasters" button
-                    document.getElementById('hideAdditionalButton').style.display = 'inline-block';
-                });
-
-                // Add click event listener to the "Hide Additional Disasters" button
-                const hideAdditionalButton = document.getElementById('hideAdditionalButton');
-                hideAdditionalButton.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    disasters.forEach(function (disaster, index) {
-                        if (index !== 0) {
-                            disaster.style.display = 'none'; // Hide additional disasters
-                        }
-                    });
-                    // Hide the "Hide Additional Disasters" button
-                    hideAdditionalButton.style.display = 'none';
-
-                    // Show the "View All Disasters" button
-                    viewAllButton.style.display = 'inline-block';
-                });
-            });
+    </div>
 
 
 
 
-            document.addEventListener('DOMContentLoaded', function () {
-                const assistanceContainer = document.getElementById('assistanceContainer');
-                const viewAllAssistanceButton = document.getElementById('viewAllAssistanceButton');
-                const hideAdditionalAssistanceButton = document.getElementById('hideAdditionalAssistanceButton');
 
-                // Hide all assistance requests except the first one initially
-                const assistanceRequests = assistanceContainer.querySelectorAll('tbody tr');
-                assistanceRequests.forEach(function (request, index) {
-                    if (index !== 0) {
-                        request.style.display = 'none';
-                    }
-                });
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-                // Add click event listener to the "View All Assistance Requests" button
-                viewAllAssistanceButton.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    assistanceRequests.forEach(function (request) {
-                        request.style.display = 'table-row'; // Show all assistance requests
-                    });
-                    // Hide the "View All Assistance Requests" button
-                    viewAllAssistanceButton.style.display = 'none';
-
-                    // Show the "Hide Additional Assistance Requests" button
-                    hideAdditionalAssistanceButton.style.display = 'inline-block';
-                });
-
-                // Add click event listener to the "Hide Additional Assistance Requests" button
-                hideAdditionalAssistanceButton.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    assistanceRequests.forEach(function (request, index) {
-                        if (index !== 0) {
-                            request.style.display = 'none'; // Hide additional assistance requests
-                        }
-                    });
-                    // Hide the "Hide Additional Assistance Requests" button
-                    hideAdditionalAssistanceButton.style.display = 'none';
-
-                    // Show the "View All Assistance Requests" button
-                    viewAllAssistanceButton.style.display = 'inline-block';
-                });
-            });
-
-
-            document.addEventListener('DOMContentLoaded', function () {
-                const alertsContainer = document.getElementById('disasterAlertsContainer');
-                const viewAllAlertsButton = document.getElementById('viewAllDisasterAlertsButton');
-                const hideAdditionalAlertsButton = document.getElementById('hideAdditionalDisasterAlertsButton');
-
-                // Hide additional potential disaster alerts initially
-                const alertRows = alertsContainer.querySelectorAll('tbody tr');
-                alertRows.forEach(function (row, index) {
-                    if (index !== 0) {
-                        row.style.display = 'none';
-                    }
-                });
-
-                // Add click event listener to the "View All Potential Disaster Alerts" button
-                viewAllAlertsButton.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    alertRows.forEach(function (row) {
-                        row.style.display = 'table-row'; // Show all potential disaster alerts
-                    });
-                    // Hide the "View All Potential Disaster Alerts" button
-                    viewAllAlertsButton.style.display = 'none';
-
-                    // Show the "Hide Additional Potential Disaster Alerts" button
-                    hideAdditionalAlertsButton.style.display = 'inline-block';
-                });
-
-                // Add click event listener to the "Hide Additional Potential Disaster Alerts" button
-                hideAdditionalAlertsButton.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    alertRows.forEach(function (row, index) {
-                        if (index !== 0) {
-                            row.style.display = 'none'; // Hide additional potential disaster alerts
-                        }
-                    });
-                    // Hide the "Hide Additional Potential Disaster Alerts" button
-                    hideAdditionalAlertsButton.style.display = 'none';
-
-                    // Show the "View All Potential Disaster Alerts" button
-                    viewAllAlertsButton.style.display = 'inline-block';
-                });
-            });
-
-
-
-
-            // Function to add a new resource
-            function addResource() {
-                // Display the add resource modal
-                document.getElementById('addResourceModal').style.display = 'block';
-            }
-
-            function submitAddResource() {
-                // Get form data
-                const name = document.getElementById('addResourceName').value;
-                const type = document.getElementById('addResourceType').value;
-                const availability = document.getElementById('addResourceAvailability').value;
-                const quantity = parseInt(document.getElementById('addResourceQuantity').value);
-
-                // Create a resource object with the form data
-                const resource = {
-                    name: name,
-                    type: type,
-                    availability: availability,
-                    quantity: quantity
-                };
-
-                // Log the resource object before sending the request
-                console.log('Resource:', resource);
-
-                // Send form data as a POST request to create a new resource
-                fetch('/resources', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(resource)
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Failed to add resource');
-                        }
-                        closeModal('addResourceModal');
-                        // Update the UI or display a success message
-                        alert('Resource added successfully');
-                        setTimeout(() => {
-                            location.reload();
-                        }, 500);
-                    })
-                    .catch(error => {
-                        console.error('Error adding resource:', error);
-                        displayErrorMessage('Failed to add resource. Please try again.');
-                    });
-
-                // Prevent form submission
-                return false;
-            }
-
-
-            // Function to edit a resource
-            function editResource(id) {
-                // Send a GET request to retrieve the resource data by ID
-                fetch(`/resources/${id}`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Failed to retrieve resource');
-                        }
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Add Volunteer Form Submission
+        document.getElementById("addVolunteerForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+            fetch("/api/add-volunteer", {
+                method: "POST",
+                body: formData
+            })
+                .then(response => {
+                    if (response.ok) {
                         return response.json();
-                    })
-                    .then(data => {
-                        // Fill the form fields with the retrieved resource data
-                        document.getElementById('editResourceId').value = data.id;
-                        document.getElementById('editResourceName').value = data.name;
-                        document.getElementById('editResourceType').value = data.type;
-                        document.getElementById('editResourceAvailability').value = data.availability.toString();
-                        document.getElementById('editResourceQuantity').value = data.quantity;
-                        // Display the edit resource modal
-                        document.getElementById('editResourceModal').style.display = 'block';
-                    })
-                    .catch(error => {
-                        console.error('Error retrieving resource:', error);
-                        displayErrorMessage('Failed to retrieve resource data. Please try again.');
-                    });
-            }
-
-            function submitEditResource() {
-                // Get form data
-                const id = parseInt(document.getElementById('editResourceId').value);
-                const name = document.getElementById('editResourceName').value;
-                const type = document.getElementById('editResourceType').value;
-                const availability = document.getElementById('editResourceAvailability').value;
-                const quantity = parseInt(document.getElementById('editResourceQuantity').value);
-
-                // Create a resource object with the form data
-                const resource = {
-                    id: id,
-                    name: name,
-                    type: type,
-                    availability: availability, // Ensure availability is sent as a string
-                    quantity: quantity
-                };
-
-                // Send form data as a PUT request to update the resource
-                fetch(`/resources/${id}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(resource)
+                    } else {
+                        throw new Error("Failed to add volunteer");
+                    }
                 })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Failed to update resource');
-                        }
-                        closeModal('editResourceModal');
-                        // Update the UI or display a success message
-                    })
-                    .catch(error => {
-                        console.error('Error updating resource:', error);
-                        displayErrorMessage('Failed to update resource. Please try again.');
-                    });
-
-                // Prevent form submission
-                return false;
-            }
-
-
-            // Function to delete a resource
-            function deleteResource(id) {
-                // Send a DELETE request to delete the resource by ID
-                fetch(`/resources/${id}`, {
-                    method: 'DELETE'
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Failed to delete resource');
-                        }
-                        // Display success message
-                        alert('Resource deleted successfully');
-                        location.reload();
-                    })
-                    .catch(error => {
-                        console.error('Error deleting resource:', error);
-                        displayErrorMessage('Failed to delete resource. Please try again.');
-                    });
-            }
-
-
-            // Function to clear error messages
-            function clearErrorMessages() {
-
-            }
-
-
-            // Function to show only a few resources
-            function showFewResources() {
-                const resourceRows = document.querySelectorAll('.resource-row');
-                const showFewButton = document.getElementById('showFewButton');
-
-                // Loop through all rows and hide those beyond the first few
-                for (let i = 5; i < resourceRows.length; i++) {
-                    resourceRows[i].style.display = 'none';
-                }
-
-                // Change button text and functionality to show all resources
-                showFewButton.textContent = 'Show All Resources';
-                showFewButton.onclick = showAllResources;
-            }
-
-            // Function to show all resources
-            function showAllResources() {
-                const resourceRows = document.querySelectorAll('.resource-row');
-                const showFewButton = document.getElementById('showFewButton');
-
-                // Loop through all rows and show them
-                for (let i = 0; i < resourceRows.length; i++) {
-                    resourceRows[i].style.display = '';
-                }
-
-                // Change button text and functionality back to show few resources
-                showFewButton.textContent = 'Show Few Resources';
-                showFewButton.onclick = showFewResources;
-            }
-
-
-            fetch('/fetchAllDisasters')
-                .then(response => response.json())
                 .then(data => {
-                    console.log(data)
-                    const disasterList = document.getElementById('disasterList');
-                    disasterList.innerHTML = ''; // Clear existing content
-                    data.disasters.forEach(disaster => {
-                        const row = `
-                    <tr class="disaster-row">
-                        <td>${disaster.name}</td>
-                        <td>
-                            <button class="btn btn-edit" onclick="editDisaster('${disaster.name}','${disaster.id}')">Edit</button>
-                            <button class="btn btn-delete" onclick="deleteDisaster('${disaster.id}')">Delete</button>
-                        </td>
-                    </tr>
-                `;
-                        disasterList.insertAdjacentHTML('beforeend', row);
-                    });
+                    // Reload the page to display the updated volunteer inventory
+                    location.reload();
                 })
-                .catch(error => console.error('Error fetching disasters:', error));
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("Failed to add volunteer");
+                });
+        });
+    });
 
-            function showAddDisasterModal() {
-                document.getElementById('addDisasterModal').style.display = 'block';
-            }
-
-            // Function to close the modal
-            function closeModal(modalId) {
-                document.getElementById(modalId).style.display = 'none';
-            }
-
-            // Function to submit the form data for adding a new disaster
-            function submitAddDisaster() {
-                // Get the form data
-                var name = document.getElementById('addDisasterName').value;
-
-                // Send a POST request to the backend with the form data
-                fetch('/addDisaster', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ name: name })
+    function deleteVolunteer(name) {
+        if (confirm("Are you sure you want to delete this volunteer?")) {
+            // Send delete request to server
+            fetch("/api/delete-volunteer/" + name, {
+                method: "DELETE"
+            })
+                .then(response => {
+                    if (response.ok) {
+                        // Volunteer deleted successfully, reload the page
+                        location.reload();
+                    } else {
+                        // Failed to delete volunteer, show error message
+                        throw new Error("Failed to delete volunteer");
+                    }
                 })
-                    .then(response => {
-                        if (response.ok) {
-                            // If the request is successful, close the modal and reload the page to update the list of disasters
-                            closeModal('addDisasterModal');
-                            location.reload();
-                        } else {
-                            // If there's an error, display an alert message
-                            alert('Failed to add disaster');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred');
-                    });
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert(error.message);
+                });
+        }
+    }
 
 
-                return false;
-            }
+    let showAlll = false;
 
-            function editDisaster(name, id) {
-                // Set the current name and ID of the disaster to be edited
-                document.getElementById('editDisasterId').value = id;
-                document.getElementById('editDisasterName').value = name;
-
-                // Display the edit disaster modal
-                document.getElementById('editDisasterModal').style.display = 'block';
-            }
-
-            function submitEditDisaster() {
-                // Get the form data
-                var id = document.getElementById('editDisasterId').value;
-                var name = document.getElementById('editDisasterName').value;
-
-                console.log('Submitting edit for disaster:', { id, name });
-
-                // Send a PUT request to the backend with the form data
-                fetch(`/updateDisaster/${id}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ name: name }) // Send only the name for updating
-                })
-                    .then(response => {
-                        if (response.ok) {
-                            // If the request is successful, close the modal and reload the page to update the list of disasters
-                            closeModal('editDisasterModal');
-                            location.reload();
-                        } else {
-                            // If there's an error, display an alert message
-                            console.error('Failed to edit disaster:', response.statusText);
-                            alert('Failed to edit disaster');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred');
-                    });
-
-                // Prevent the default form submission
-                return false;
-            }
-
-
-
-
-            function deleteDisaster(id) {
-                // Confirm with the user before deleting the disaster
-                var confirmDelete = confirm('Are you sure you want to delete this disaster?');
-                if (!confirmDelete) {
-                    // If the user cancels, do nothing
-                    return;
-                }
-
-                // Send a DELETE request to the backend to delete the disaster
-                fetch(`/deleteDisaster/${id}`, {
-                    method: 'DELETE'
-                })
-                    .then(response => {
-                        if (response.ok) {
-                            // If the deletion is successful, reload the page to update the list of disasters
-                            location.reload();
-                        } else {
-                            // If there's an error, display an alert message
-                            alert('Failed to delete disaster');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred');
-                    });
-            }
-
-
-            let showAll = false; // Flag to track whether all disasters are displayed
-
-            // Function to toggle disaster display
-            function toggleDisasterDisplay() {
-                showAll = !showAll; // Toggle the flag
-
-                const showAllButton = document.getElementById('showAllDisastersButton');
-                const disasterList = document.getElementById('disasterList');
-                const disasters = disasterList.querySelectorAll('.disaster-row');
-
-                if (showAll) {
-                    // If showAll is true, show all disasters
-                    showAllButton.textContent = 'Show Few Disasters';
-                    disasters.forEach(disaster => {
-                        disaster.style.display = 'table-row'; // Show each disaster row
-                    });
+    function toggleVolunteers() {
+        const rows = document.querySelectorAll('.volunteer-row');
+        if (showAlll) {
+            // Show only 10 rows
+            for (let i = 0; i < rows.length; i++) {
+                if (i < 10) {
+                    rows[i].style.display = 'table-row';
                 } else {
-                    // If showAll is false, show only five disasters
-                    showAllButton.textContent = 'Show All Disasters';
-                    disasters.forEach((disaster, index) => {
-                        if (index < 5) {
-                            disaster.style.display = 'table-row'; // Show the first five disaster rows
-                        } else {
-                            disaster.style.display = 'none'; // Hide the rest of the disaster rows
-                        }
-                    });
+                    rows[i].style.display = 'none';
                 }
             }
+            showAlll = false;
+        } else {
+            // Show all rows
+            rows.forEach(row => {
+                row.style.display = 'table-row';
+            });
+            showAlll = true;
+        }
+    }
 
 
-            // Add click event listener to dynamically created Allocate Resource buttons
-            document.addEventListener("click", function (event) {
-                if (event.target.classList.contains("allocateResourceBtn")) {
-                    // Fetch the ID of the assistance request
-                    var requestId = event.target.dataset.id;
+    function getWeather() {
+        var lat = document.getElementById("lat").value;
+        var lon = document.getElementById("lon").value;
+        var apiKey = 'e937eebc798a088bcc232b10526f59ff'; // Replace with your OpenWeatherMap API key
+        var url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`;
 
-                    // Send request to allocate resource for the specific assistance request
-                    fetch("/allocateResource/" + requestId, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        }
-                    })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error("Resource Currently unavailable !!!");
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            // Display success message
-                            alert(data.message);
-                            // Reload the page or update the UI as needed
-                            location.reload();
-                        })
-                        .catch(error => {
-                            console.error("Error:", error);
-                            // Handle error
-                            alert("Error: " + error.message);
-                        });
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                var temperatureCelsius = (data.main.temp - 273.15).toFixed(2);
+                var weatherInfo = `
+                <p>Temperature: ${temperatureCelsius} °C</p>
+                <p>Description: ${data.weather[0].description}</p>
+                <p>Humidity: ${data.main.humidity}%</p>
+            `;
+                document.getElementById("weather-info").innerHTML = weatherInfo;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Hide all disasters except the first one initially
+        const disasters = document.querySelectorAll('.disaster-row'); // Use the class "disaster-row"
+        disasters.forEach(function (disaster, index) {
+            if (index !== 0) {
+                disaster.style.display = 'none';
+            }
+        });
+
+        // Add click event listener to the "View All Disasters" button
+        const viewAllButton = document.getElementById('viewAllButton');
+        viewAllButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            disasters.forEach(function (disaster) {
+                disaster.style.display = 'table-row'; // Show all disasters
+            });
+            // Hide the "View All Disasters" button
+            viewAllButton.style.display = 'none';
+
+            // Show the "Hide Additional Disasters" button
+            document.getElementById('hideAdditionalButton').style.display = 'inline-block';
+        });
+
+        // Add click event listener to the "Hide Additional Disasters" button
+        const hideAdditionalButton = document.getElementById('hideAdditionalButton');
+        hideAdditionalButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            disasters.forEach(function (disaster, index) {
+                if (index !== 0) {
+                    disaster.style.display = 'none'; // Hide additional disasters
                 }
             });
-            function sendHelp(latitude, longitude) {
-                // Perform AJAX request to fetch volunteer details based on the entered city
-                var city = prompt("Enter the city where you need assistance:");
-                if (!city) {
-                    return;
+            // Hide the "Hide Additional Disasters" button
+            hideAdditionalButton.style.display = 'none';
+
+            // Show the "View All Disasters" button
+            viewAllButton.style.display = 'inline-block';
+        });
+    });
+
+
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const assistanceContainer = document.getElementById('assistanceContainer');
+        const viewAllAssistanceButton = document.getElementById('viewAllAssistanceButton');
+        const hideAdditionalAssistanceButton = document.getElementById('hideAdditionalAssistanceButton');
+
+        // Hide all assistance requests except the first one initially
+        const assistanceRequests = assistanceContainer.querySelectorAll('tbody tr');
+        assistanceRequests.forEach(function (request, index) {
+            if (index !== 0) {
+                request.style.display = 'none';
+            }
+        });
+
+        // Add click event listener to the "View All Assistance Requests" button
+        viewAllAssistanceButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            assistanceRequests.forEach(function (request) {
+                request.style.display = 'table-row'; // Show all assistance requests
+            });
+            // Hide the "View All Assistance Requests" button
+            viewAllAssistanceButton.style.display = 'none';
+
+            // Show the "Hide Additional Assistance Requests" button
+            hideAdditionalAssistanceButton.style.display = 'inline-block';
+        });
+
+        // Add click event listener to the "Hide Additional Assistance Requests" button
+        hideAdditionalAssistanceButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            assistanceRequests.forEach(function (request, index) {
+                if (index !== 0) {
+                    request.style.display = 'none'; // Hide additional assistance requests
                 }
+            });
+            // Hide the "Hide Additional Assistance Requests" button
+            hideAdditionalAssistanceButton.style.display = 'none';
 
-                var xhr = new XMLHttpRequest();
-                xhr.open("GET", "/api/volunteer?city=" + encodeURIComponent(city), true);
+            // Show the "View All Assistance Requests" button
+            viewAllAssistanceButton.style.display = 'inline-block';
+        });
+    });
 
-                // Callback function when AJAX request completes
-                xhr.onload = function () {
-                    if (xhr.status === 200) {
-                        // Request successful
-                        var response = JSON.parse(xhr.responseText);
-                        var volunteer = response.volunteer;
-                        var reportId = response.report_id;
 
-                        // Display volunteer details in an alert box
-                        var message = "Volunteer Name: " + volunteer.name + "\n" +
-                            "Volunteer Phone: " + volunteer.phone + "\n\n" +
-                            "This volunteer will assist the location.";
+    document.addEventListener('DOMContentLoaded', function () {
+        const alertsContainer = document.getElementById('disasterAlertsContainer');
+        const viewAllAlertsButton = document.getElementById('viewAllDisasterAlertsButton');
+        const hideAdditionalAlertsButton = document.getElementById('hideAdditionalDisasterAlertsButton');
 
-                        // Send WhatsApp message to the volunteer
-                        sendWhatsAppMessage(volunteer.phone, "Please assist the location.");
+        // Hide additional potential disaster alerts initially
+        const alertRows = alertsContainer.querySelectorAll('tbody tr');
+        alertRows.forEach(function (row, index) {
+            if (index !== 0) {
+                row.style.display = 'none';
+            }
+        });
 
-                        // Display the volunteer details and message in an alert box
-                        alert(message);
+        // Add click event listener to the "View All Potential Disaster Alerts" button
+        viewAllAlertsButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            alertRows.forEach(function (row) {
+                row.style.display = 'table-row'; // Show all potential disaster alerts
+            });
+            // Hide the "View All Potential Disaster Alerts" button
+            viewAllAlertsButton.style.display = 'none';
 
-                        // Perform AJAX request to delete the disaster report from the database
-                        var deleteReportXHR = new XMLHttpRequest();
-                        deleteReportXHR.open("DELETE", "/api/disaster-report?id=" + encodeURIComponent(reportId), true);
+            // Show the "Hide Additional Potential Disaster Alerts" button
+            hideAdditionalAlertsButton.style.display = 'inline-block';
+        });
 
-                        // Callback function when delete request completes
-                        deleteReportXHR.onload = function () {
-                            if (deleteReportXHR.status === 200) {
-                                // Report deleted successfully
-                                console.log("Disaster report deleted successfully");
-                                // Reload the window after the report is deleted
-                                window.location.reload();
-                            } else {
-                                // Failed to delete report
-                                console.error("Failed to delete disaster report");
-                            }
-                        };
+        // Add click event listener to the "Hide Additional Potential Disaster Alerts" button
+        hideAdditionalAlertsButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            alertRows.forEach(function (row, index) {
+                if (index !== 0) {
+                    row.style.display = 'none'; // Hide additional potential disaster alerts
+                }
+            });
+            // Hide the "Hide Additional Potential Disaster Alerts" button
+            hideAdditionalAlertsButton.style.display = 'none';
 
-                        // Send the delete request
-                        deleteReportXHR.send();
+            // Show the "View All Potential Disaster Alerts" button
+            viewAllAlertsButton.style.display = 'inline-block';
+        });
+    });
+
+
+
+
+    // Function to add a new resource
+    function addResource() {
+        // Display the add resource modal
+        document.getElementById('addResourceModal').style.display = 'block';
+    }
+
+    function submitAddResource() {
+        // Get form data
+        const name = document.getElementById('addResourceName').value;
+        const type = document.getElementById('addResourceType').value;
+        const availability = document.getElementById('addResourceAvailability').value;
+        const quantity = parseInt(document.getElementById('addResourceQuantity').value);
+
+        // Create a resource object with the form data
+        const resource = {
+            name: name,
+            type: type,
+            availability: availability,
+            quantity: quantity
+        };
+
+        // Log the resource object before sending the request
+        console.log('Resource:', resource);
+
+        // Send form data as a POST request to create a new resource
+        fetch('/resources', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(resource)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to add resource');
+                }
+                closeModal('addResourceModal');
+                // Update the UI or display a success message
+                alert('Resource added successfully');
+                setTimeout(() => {
+                    location.reload();
+                }, 500);
+            })
+            .catch(error => {
+                console.error('Error adding resource:', error);
+                displayErrorMessage('Failed to add resource. Please try again.');
+            });
+
+        // Prevent form submission
+        return false;
+    }
+
+
+    // Function to edit a resource
+    function editResource(id) {
+        // Send a GET request to retrieve the resource data by ID
+        fetch(`/resources/${id}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to retrieve resource');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Fill the form fields with the retrieved resource data
+                document.getElementById('editResourceId').value = data.id;
+                document.getElementById('editResourceName').value = data.name;
+                document.getElementById('editResourceType').value = data.type;
+                document.getElementById('editResourceAvailability').value = data.availability.toString();
+                document.getElementById('editResourceQuantity').value = data.quantity;
+                // Display the edit resource modal
+                document.getElementById('editResourceModal').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error retrieving resource:', error);
+                displayErrorMessage('Failed to retrieve resource data. Please try again.');
+            });
+    }
+
+    function submitEditResource() {
+        // Get form data
+        const id = parseInt(document.getElementById('editResourceId').value);
+        const name = document.getElementById('editResourceName').value;
+        const type = document.getElementById('editResourceType').value;
+        const availability = document.getElementById('editResourceAvailability').value;
+        const quantity = parseInt(document.getElementById('editResourceQuantity').value);
+
+        // Create a resource object with the form data
+        const resource = {
+            id: id,
+            name: name,
+            type: type,
+            availability: availability, // Ensure availability is sent as a string
+            quantity: quantity
+        };
+
+        // Send form data as a PUT request to update the resource
+        fetch(`/resources/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(resource)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to update resource');
+                }
+                closeModal('editResourceModal');
+                // Update the UI or display a success message
+            })
+            .catch(error => {
+                console.error('Error updating resource:', error);
+                displayErrorMessage('Failed to update resource. Please try again.');
+            });
+
+        // Prevent form submission
+        return false;
+    }
+
+
+    // Function to delete a resource
+    function deleteResource(id) {
+        // Send a DELETE request to delete the resource by ID
+        fetch(`/resources/${id}`, {
+            method: 'DELETE'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to delete resource');
+                }
+                // Display success message
+                alert('Resource deleted successfully');
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error deleting resource:', error);
+                displayErrorMessage('Failed to delete resource. Please try again.');
+            });
+    }
+
+
+    // Function to clear error messages
+    function clearErrorMessages() {
+
+    }
+
+
+    // Function to show only a few resources
+    function showFewResources() {
+        const resourceRows = document.querySelectorAll('.resource-row');
+        const showFewButton = document.getElementById('showFewButton');
+
+        // Loop through all rows and hide those beyond the first few
+        for (let i = 5; i < resourceRows.length; i++) {
+            resourceRows[i].style.display = 'none';
+        }
+
+        // Change button text and functionality to show all resources
+        showFewButton.textContent = 'Show All Resources';
+        showFewButton.onclick = showAllResources;
+    }
+
+    // Function to show all resources
+    function showAllResources() {
+        const resourceRows = document.querySelectorAll('.resource-row');
+        const showFewButton = document.getElementById('showFewButton');
+
+        // Loop through all rows and show them
+        for (let i = 0; i < resourceRows.length; i++) {
+            resourceRows[i].style.display = '';
+        }
+
+        // Change button text and functionality back to show few resources
+        showFewButton.textContent = 'Show Few Resources';
+        showFewButton.onclick = showFewResources;
+    }
+
+
+    fetch('/fetchAllDisasters')
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            const disasterList = document.getElementById('disasterList');
+            disasterList.innerHTML = ''; // Clear existing content
+            data.disasters.forEach(disaster => {
+                const row = `
+            <tr class="disaster-row">
+                <td>${disaster.name}</td>
+                <td>
+                    <button class="btn btn-edit" onclick="editDisaster('${disaster.name}','${disaster.id}')">Edit</button>
+                    <button class="btn btn-delete" onclick="deleteDisaster('${disaster.id}')">Delete</button>
+                </td>
+            </tr>
+        `;
+                disasterList.insertAdjacentHTML('beforeend', row);
+            });
+        })
+        .catch(error => console.error('Error fetching disasters:', error));
+
+    function showAddDisasterModal() {
+        document.getElementById('addDisasterModal').style.display = 'block';
+    }
+
+    // Function to close the modal
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    // Function to submit the form data for adding a new disaster
+    function submitAddDisaster() {
+        // Get the form data
+        var name = document.getElementById('addDisasterName').value;
+
+        // Send a POST request to the backend with the form data
+        fetch('/addDisaster', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name: name })
+        })
+            .then(response => {
+                if (response.ok) {
+                    // If the request is successful, close the modal and reload the page to update the list of disasters
+                    closeModal('addDisasterModal');
+                    location.reload();
+                } else {
+                    // If there's an error, display an alert message
+                    alert('Failed to add disaster');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+
+
+        return false;
+    }
+
+    function editDisaster(name, id) {
+        // Set the current name and ID of the disaster to be edited
+        document.getElementById('editDisasterId').value = id;
+        document.getElementById('editDisasterName').value = name;
+
+        // Display the edit disaster modal
+        document.getElementById('editDisasterModal').style.display = 'block';
+    }
+
+    function submitEditDisaster() {
+        // Get the form data
+        var id = document.getElementById('editDisasterId').value;
+        var name = document.getElementById('editDisasterName').value;
+
+        console.log('Submitting edit for disaster:', { id, name });
+
+        // Send a PUT request to the backend with the form data
+        fetch(`/updateDisaster/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name: name }) // Send only the name for updating
+        })
+            .then(response => {
+                if (response.ok) {
+                    // If the request is successful, close the modal and reload the page to update the list of disasters
+                    closeModal('editDisasterModal');
+                    location.reload();
+                } else {
+                    // If there's an error, display an alert message
+                    console.error('Failed to edit disaster:', response.statusText);
+                    alert('Failed to edit disaster');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+
+        // Prevent the default form submission
+        return false;
+    }
+
+
+
+
+    function deleteDisaster(id) {
+        // Confirm with the user before deleting the disaster
+        var confirmDelete = confirm('Are you sure you want to delete this disaster?');
+        if (!confirmDelete) {
+            // If the user cancels, do nothing
+            return;
+        }
+
+        // Send a DELETE request to the backend to delete the disaster
+        fetch(`/deleteDisaster/${id}`, {
+            method: 'DELETE'
+        })
+            .then(response => {
+                if (response.ok) {
+                    // If the deletion is successful, reload the page to update the list of disasters
+                    location.reload();
+                } else {
+                    // If there's an error, display an alert message
+                    alert('Failed to delete disaster');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+    }
+
+
+    let showAll = false; // Flag to track whether all disasters are displayed
+
+    // Function to toggle disaster display
+    function toggleDisasterDisplay() {
+        showAll = !showAll; // Toggle the flag
+
+        const showAllButton = document.getElementById('showAllDisastersButton');
+        const disasterList = document.getElementById('disasterList');
+        const disasters = disasterList.querySelectorAll('.disaster-row');
+
+        if (showAll) {
+            // If showAll is true, show all disasters
+            showAllButton.textContent = 'Show Few Disasters';
+            disasters.forEach(disaster => {
+                disaster.style.display = 'table-row'; // Show each disaster row
+            });
+        } else {
+            // If showAll is false, show only five disasters
+            showAllButton.textContent = 'Show All Disasters';
+            disasters.forEach((disaster, index) => {
+                if (index < 5) {
+                    disaster.style.display = 'table-row'; // Show the first five disaster rows
+                } else {
+                    disaster.style.display = 'none'; // Hide the rest of the disaster rows
+                }
+            });
+        }
+    }
+
+
+    // Add click event listener to dynamically created Allocate Resource buttons
+    document.addEventListener("click", function (event) {
+        if (event.target.classList.contains("allocateResourceBtn")) {
+            // Fetch the ID of the assistance request
+            var requestId = event.target.dataset.id;
+
+            // Send request to allocate resource for the specific assistance request
+            fetch("/allocateResource/" + requestId, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Resource Currently unavailable !!!");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Display success message
+                    alert(data.message);
+                    // Reload the page or update the UI as needed
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    // Handle error
+                    alert("Error: " + error.message);
+                });
+        }
+    });
+    function sendHelp(latitude, longitude) {
+        // Perform AJAX request to fetch volunteer details based on the entered city
+        var city = prompt("Enter the city where you need assistance:");
+        if (!city) {
+            return;
+        }
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/api/volunteer?city=" + encodeURIComponent(city), true);
+
+        // Callback function when AJAX request completes
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                // Request successful
+                var response = JSON.parse(xhr.responseText);
+                var volunteer = response.volunteer;
+                var reportId = response.report_id;
+
+                // Display volunteer details in an alert box
+                var message = "Volunteer Name: " + volunteer.name + "\n" +
+                    "Volunteer Phone: " + volunteer.phone + "\n\n" +
+                    "This volunteer will assist the location.";
+
+                // Send WhatsApp message to the volunteer
+                sendWhatsAppMessage(volunteer.phone, "Please assist the location.");
+
+                // Display the volunteer details and message in an alert box
+                alert(message);
+
+                // Perform AJAX request to delete the disaster report from the database
+                var deleteReportXHR = new XMLHttpRequest();
+                deleteReportXHR.open("DELETE", "/api/disaster-report?id=" + encodeURIComponent(reportId), true);
+
+                // Callback function when delete request completes
+                deleteReportXHR.onload = function () {
+                    if (deleteReportXHR.status === 200) {
+                        // Report deleted successfully
+                        console.log("Disaster report deleted successfully");
+                        // Reload the window after the report is deleted
+                        window.location.reload();
                     } else {
-                        // Request failed
-                        alert("No volunteer found for the specified city.");
+                        // Failed to delete report
+                        console.error("Failed to delete disaster report");
                     }
                 };
 
-                // Send the AJAX request
-                xhr.send();
+                // Send the delete request
+                deleteReportXHR.send();
+            } else {
+                // Request failed
+                alert("No volunteer found for the specified city.");
             }
-            function deleteReport(id) {
-                // Confirm deletion
-                if (confirm("Mark This Report As Solved!")) {
-                    // Send a DELETE request to the backend
-                    fetch(`/deleteDisasterReport/${id}`, {
-                        method: 'DELETE',
-                    })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok');
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            console.log(data.message); // Log success message
-                            // Optionally, you can remove the deleted report from the UI
-                        })
-                        .catch(error => {
-                            console.error('Error:', error); // Log any errors
-                        });
-                }
-            }
-            function senddHelp(latitude, longitude) {
-                var city = prompt("Enter the city where assistance is needed:");
-                if (!city) {
-                    return;
-                }
+        };
 
-                fetch(`/api/volunteer?city=${encodeURIComponent(city)}`)
+        // Send the AJAX request
+        xhr.send();
+    }
+    function deleteReport(id) {
+        // Confirm deletion
+        if (confirm("Mark This Report As Solved!")) {
+            // Send a DELETE request to the backend
+            fetch(`/deleteDisasterReport/${id}`, {
+                method: 'DELETE',
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data.message); // Log success message
+                    // Optionally, you can remove the deleted report from the UI
+                })
+                .catch(error => {
+                    console.error('Error:', error); // Log any errors
+                });
+        }
+    }
+    function senddHelp(latitude, longitude) {
+        var city = prompt("Enter the city where assistance is needed:");
+        if (!city) {
+            return;
+        }
+
+        fetch(`/api/volunteer?city=${encodeURIComponent(city)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                var volunteer = data.volunteer;
+                var reportId = data.report_id;
+
+                var message = `Volunteer Name: ${volunteer.name}\nVolunteer Phone: ${volunteer.phone}\n\nThis volunteer will assist the location.`;
+
+                alert(message);
+
+                sendWhatsAppMessage(volunteer.phone, "Please assist the location.");
+
+                fetch(`/api/disaster-report?id=${encodeURIComponent(reportId)}`, {
+                    method: 'DELETE',
+                })
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('Network response was not ok');
                         }
-                        return response.json();
-                    })
-                    .then(data => {
-                        var volunteer = data.volunteer;
-                        var reportId = data.report_id;
-
-                        var message = `Volunteer Name: ${volunteer.name}\nVolunteer Phone: ${volunteer.phone}\n\nThis volunteer will assist the location.`;
-
-                        alert(message);
-
-                        sendWhatsAppMessage(volunteer.phone, "Please assist the location.");
-
-                        fetch(`/api/disaster-report?id=${encodeURIComponent(reportId)}`, {
-                            method: 'DELETE',
-                        })
-                            .then(response => {
-                                if (!response.ok) {
-                                    throw new Error('Network response was not ok');
-                                }
-                                console.log("Disaster report deleted successfully");
-                                window.location.reload();
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                            });
+                        console.log("Disaster report deleted successfully");
+                        window.location.reload();
                     })
                     .catch(error => {
-                        alert("No volunteer found for the specified city.");
                         console.error('Error:', error);
                     });
+            })
+            .catch(error => {
+                alert("No volunteer found for the specified city.");
+                console.error('Error:', error);
+            });
+    }
+
+    function markAsSolved(disasterType) {
+        // Confirm marking as solved
+        if (confirm("Mark the " + disasterType + " disaster as solved?")) {
+            // Send a DELETE request to the backend
+            fetch(`/api/delete-alert?disasterType=${encodeURIComponent(disasterType)}`, {
+                method: 'DELETE',
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data.message); // Log success message
+                })
+                .catch(error => {
+                    console.error('Error:', error); // Log any errors
+                });
+        }
+    }
+   
+function sendMessageToVolunteer(name) {
+    // Make an AJAX POST request to the backend
+    $.ajax({
+        url: '/send-message-to-volunteer',
+        type: 'POST',
+        data: { name: name },
+        success: function(response) {
+            alert('Message sent successfully to ' + name);
+        },
+        error: function(xhr, status, error) {
+            alert('Failed to send message to ' + name + '. Error: ' + error);
+        }
+    });
+}
+
+function changeAvailability(name) {
+    // Confirm if the volunteer is available to work again
+    const confirmMessage = `Is ${name} available to work again?`;
+    if (confirm(confirmMessage)) {
+        // If confirmed, send a request to change the availability
+        fetch('/change-availability', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `name=${name}`,
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to change availability');
             }
+            return response.json();
+        })
+        .then(data => {
+            // Handle success response
+            alert(data.message);
+            // Optionally, update the UI or perform other actions
+        })
+        .catch(error => {
+            // Handle error
+            console.error('Error changing availability:', error.message);
+            alert('Error changing availability');
+        });
+    }
+}
+function sendMessageToVolunteer(name) {
+    // Show alert message
+    const alertMessage = "Send a reminder message to the volunteer regarding the disaster report. Ask for an update on the status and availability.";
+    alert(alertMessage);
 
-            function markAsSolved(disasterType) {
-                // Confirm marking as solved
-                if (confirm("Mark the " + disasterType + " disaster as solved?")) {
-                    // Send a DELETE request to the backend
-                    fetch(`/api/delete-alert?disasterType=${encodeURIComponent(disasterType)}`, {
-                        method: 'DELETE',
-                    })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok');
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            console.log(data.message); // Log success message
-                        })
-                        .catch(error => {
-                            console.error('Error:', error); // Log any errors
-                        });
-                }
-            }
+    // Call Go handler function to send WhatsApp message to the volunteer
+    fetch('/send-message-to-volunteer', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: name }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to send WhatsApp message');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Handle success response if needed
+        console.log('WhatsApp message sent successfully:', data);
+    })
+    .catch(error => {
+        // Handle error if sending WhatsApp message fails
+        console.error('Error sending WhatsApp message:', error.message);
+    });
+}
 
 
 
+</script>
 
-        </script>
 </body>
-
 </html>

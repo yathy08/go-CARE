@@ -68,7 +68,7 @@ func Postlogin(c *gin.Context) {
 			return
 		}
 
-		jwt.JwtToken(c, user.Email, RoleUser)
+		jwt.JwtToken(c, user.Email, RoleUser,user.Name)
 		c.Redirect(http.StatusSeeOther, "/home")
 		return
 	}
@@ -89,7 +89,7 @@ func Postlogin(c *gin.Context) {
 		return
 	}
 
-	jwt.JwtToken(c, user.Email, RoleUser)
+	jwt.JwtToken(c, user.Email, RoleUser,user.Name)
 	c.JSON(http.StatusOK, gin.H{"message": "Login successful"})
 }
 
@@ -138,15 +138,17 @@ func UserHome(c *gin.Context) {
 	c.Header("Cache-Control", "no-cache,no-store,must-revalidate")
 	session := sessions.Default(c)
 	check := session.Get(RoleUser)
+	name := session.Get("username")
+	// user := getUserByEmail()
 	if check != nil {
 		if c.Request.Header.Get("Content-Type") == "application/json" {
 			c.JSON(http.StatusOK, gin.H{
-				"Name":  Fetch.Name,
+				"Name":  name,
 				"Email": Fetch.Email,
 			})
 		} else {
 			c.HTML(200, "user.html", gin.H{
-				"Name":  Fetch.Name,
+				"Name":  name,
 				"Email": Fetch.Email,
 			})
 		}
@@ -594,6 +596,12 @@ func SubmitVolunteerForm(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save volunteer"})
 		return
 	}
+	 // Check if availability is provided
+	 if volunteer.Availability == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Availability not provided"})
+        return
+    }
+
 
 	c.JSON(http.StatusOK, gin.H{"message": "Volunteer application submitted successfully!"})
 }
@@ -684,31 +692,127 @@ func SendMessageHandler(c *gin.Context) {
 }
 
 func GetVolunteerByCityHandler(c *gin.Context) {
-
+	// Get the city from the query parameter
 	city := c.Query("city")
 
-	volunteer := model.Volunteer{}
-	if err := database.DB.Where("city = ?", city).First(&volunteer).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "No volunteer found for the specified city"})
+	// Check if there is any volunteer available in the specified city
+	var count int64
+	database.DB.Model(&model.Volunteer{}).Where("city = ? AND availability = ?", city, "Available").Count(&count)
+	if count == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No available volunteer found for the specified city"})
 		return
 	}
 
+	// Find the volunteer in the specified city
+	var volunteer model.Volunteer
+	if err := database.DB.Where("city = ? AND availability = ?", city, "Available").First(&volunteer).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No available volunteer found for the specified city"})
+		return
+	}
+
+	// Set the availability of the volunteer to "Not Available"
+	volunteer.Availability = "Not Available"
+
+	// Save the updated volunteer to the database
+	if err := database.DB.Save(&volunteer).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update volunteer availability"})
+		return
+	}
+
+	// Send a WhatsApp message to the volunteer
 	err := sendWhatsAppMessage(volunteer.MobileNumber, "You should reach the location along with your team as soon as possible")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send WhatsApp message"})
 		return
 	}
 
-	if err := database.DB.Delete(&volunteer).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete volunteer from database"})
-		return
-	}
-
+	// Return the volunteer's details along with updated availability
 	c.JSON(http.StatusOK, gin.H{
-		"name":  volunteer.Name,
-		"phone": volunteer.MobileNumber,
+		"name":         volunteer.Name,
+		"phone":        volunteer.MobileNumber,
+		"availability": volunteer.Availability,
 	})
 }
+func ChangeAvailabilityHandler(c *gin.Context) {
+    // Get the name of the volunteer from the request
+    name := c.PostForm("name")
+
+    // Fetch the volunteer from the database based on the name
+    var volunteer model.Volunteer
+    if err := database.DB.Where("name = ?", name).First(&volunteer).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "Volunteer not found"})
+        return
+    }
+
+    // Update the availability status of the volunteer
+    volunteer.Availability = "available"
+
+    // Save the updated volunteer back to the database
+    if err := database.DB.Save(&volunteer).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update availability status"})
+        return
+    }
+
+    // Send a success response
+    c.JSON(http.StatusOK, gin.H{"message": "Availability status changed successfully!"})
+}
+
+func GetVolunteerDetailsHandler(c *gin.Context) {
+    // Get the volunteer name from the query parameter
+    volunteerName := c.Query("name")
+
+    // Fetch the volunteer from the database based on the name
+    var volunteer model.Volunteer
+    if err := database.DB.Where("name = ?", volunteerName).First(&volunteer).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "Volunteer not found"})
+        return
+    }
+
+    // Send the volunteer's details as the response
+    c.JSON(http.StatusOK, volunteer)
+}
+
+func SendMessageToVolunteer(_, _ string) error {
+
+	accountSID := os.Getenv("TWILIO_ACCOUNT_SID")
+	authToken := os.Getenv("TWILIO_AUTH_TOKEN")
+
+	client := twilio.NewRestClientWithParams(twilio.ClientParams{
+		Username: accountSID,
+		Password: authToken,
+	})
+
+	params := &twilioApi.CreateMessageParams{}
+	params.SetTo("whatsapp:+919508223747")
+	params.SetFrom("whatsapp:+14155238886")
+	params.SetBody("Hello From the admin!!  Can You provide the updates regarding the Disaster Report and When will you be available again to join?")
+	
+
+	_, err := client.Api.CreateMessage(params)
+	if err != nil {
+		fmt.Println("Error sending WhatsApp message:", err.Error())
+		return err
+	}
+
+	return nil
+}
+// Create a handler function that matches the Gin handler signature
+func SendMessageToVolunteerHandler(c *gin.Context) {
+    // Get the name of the volunteer from the request
+    name := c.PostForm("name")
+
+    // Call the SendMessageToVolunteer function
+    err := SendMessageToVolunteer(name,name)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    // Send a success response
+    c.JSON(http.StatusOK, gin.H{"message": "WhatsApp message sent successfully"})
+}
+
+
 
 func sendWhatsAppMessage(_, _ string) error {
 
