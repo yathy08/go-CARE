@@ -20,9 +20,12 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.14.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/gorilla/context v1.1.1 // indirect
+	github.com/gorilla/schema v1.1.0 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/gorilla/sessions v1.2.1 // indirect
 	github.com/gorilla/websocket v1.5.1 // indirect
@@ -58,6 +61,7 @@ require (
 	github.com/icza/session v1.2.0
 	github.com/lib/pq v1.10.3 // indirect
 	github.com/redis/go-redis/v9 v9.5.1
+	github.com/sfreiberg/gotwilio v1.0.0
 	github.com/twilio/twilio-go v1.20.1
 	gorm.io/gorm v1.25.6
 )

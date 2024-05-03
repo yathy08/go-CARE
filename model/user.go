@@ -32,6 +32,7 @@ type AssistanceRequest struct {
 	ResourceName      string `json:"resourceName" binding:"required"`
 	Quantity          string `json:"quantity" binding:"required"`
 	AdditionalComment string `json:"additionalComment"`
+	Phone             string `json:"phone" binding:"required"`
 }
 
 type AlertPotentialDisasterReport struct {
@@ -40,6 +41,7 @@ type AlertPotentialDisasterReport struct {
 	Description  string  `form:"description" binding:"required"`
 	Latitude     float64 `form:"latitude" binding:"required"`
 	Longitude    float64 `form:"longitude" binding:"required"`
+	
 }
 
 type Alert struct {

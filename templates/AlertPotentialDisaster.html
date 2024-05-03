@@ -11,19 +11,32 @@
     <style>
         /* Basic CSS styles */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f0f0f0;
+            background-image: url(https://images.pexels.com/photos/263402/pexels-photo-263402.jpeg?auto=compress&cs=tinysrgb&w=7200);
+            background-size: cover;
+            background-position: 100%;
+            
+        }
+        .logo {
+            position: absolute;
+            top: -39px; /* Adjust the top position as needed */
+            left: -10px; /* Adjust the left position as needed */
+            height: 120px; /* Adjust the height as needed */
         }
 
         .container {
             max-width: 600px;
             margin: 50px auto;
             padding: 20px;
-            background-color: #fff;
+            background-color: #9a5050;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 15px 25px rgba(8, 88, 102, 0.6);
+            backdrop-filter: blur(20px);
+            background: transparent;
+            position: relative;
         }
 
         h1,
@@ -45,6 +58,7 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             box-sizing: border-box;
+            
         }
 
         button {
@@ -69,6 +83,7 @@
 
 <body>
     <div class="container">
+        <img class="logo" src="../Logos/Go-Care (2).png" alt="Logo">
         <h1>Report Potential Disaster</h1>
         <form id="disasterReportForm">
             <label for="disasterType">Type of Disaster:</label>
@@ -114,7 +129,7 @@
             // Add a marker to the map
             var marker = L.marker([latitude, longitude]).addTo(map);
             // Add a popup to the marker
-            marker.bindPopup("<b>Disaster Location</b>").openPopup();
+            marker.bindPopup("<b>You marked your Alert here</b>").openPopup();
         }
 
         // Event listener for form submission
@@ -155,10 +170,10 @@
                     return response.json();
                 })
                 .then(data => {
-                    // Handle success response from the server
+                   
                     console.log(data); // Log the response
-                    alert('Potential disaster alert request submitted successfully');
-                    // You can redirect or perform any other action here after successful submission
+            alert('Potential disaster alert request submitted successfully and you can Check out the location in the map which will be displayed below , we will be reaching the location shortly and a message will be sent when the assistance is sent to your location.');
+            
                 })
                 .catch(error => {
                     // Handle error

@@ -48,12 +48,19 @@
             border-radius: 5px;
             box-sizing: border-box;
         }
+        .logo {
+            position: absolute;
+            top: -40px; /* Adjust the top position as needed */
+            left: -10px; /* Adjust the left position as needed */
+            height: 120px; /* Adjust the height as needed */
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
         <h1>Request Assistance</h1>
+        <img class="logo" src="../Logos/Go-Care (2).png" alt="Logo">
         <form id="assistanceForm">
             <input id="resourceName" type="text" placeholder="Resource Name" required>
             <select id="resourceType" required onchange="populateResourceNames()">
@@ -72,6 +79,7 @@
                 <option value="" disabled selected>Select Resource Name</option>
             </select>
             <input id="quantity" type="number" placeholder="Quantity" required>
+            <input id="phoneNumber" type="tel" placeholder="Phone Number" required>
             <textarea id="additionalComment" placeholder="Additional Comments"></textarea>
             <button type="submit">Submit Request</button>
         </form>
@@ -178,6 +186,7 @@
             var resourceName = document.getElementById('resourceName').value;
             var resourceType = document.getElementById('resourceType').value;
             var quantity = document.getElementById('quantity').value;
+            var phoneNumber = document.getElementById('phoneNumber').value;
             var additionalComment = document.getElementById('additionalComment').value;
 
             // Create data object to send to the server
@@ -185,8 +194,10 @@
                 resourceName: resourceName,
                 resourceType: resourceType,
                 quantity: quantity,
+                phone: phoneNumber,
                 additionalComment: additionalComment
             };
+            console.log(requestData)
 
             // Send data to the server
             fetch('/api/RequestAssistance', {
@@ -205,8 +216,8 @@
                 .then(data => {
                     // Handle success response from the server
                     console.log(data); // Log the response
-                    alert('Assistance request submitted successfully');
-                    // You can redirect or perform any other action here after successful submission
+                    alert('Your Assistance request has been successfully submitted ,an update message will be sent to you regarding when the resources will reach to you.');
+                    window.location.href = '/home';
                 })
                 .catch(error => {
                     // Handle errors

@@ -358,27 +358,25 @@ func GetRequestAssistance(c *gin.Context) {
 }
 
 func PostRequestAssistance(c *gin.Context) {
+    var request model.AssistanceRequest
+    if err := c.BindJSON(&request); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
 
-	var request model.AssistanceRequest
-	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+    if err := SaveToDatabase(&request); err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save assistance request"})
+        return
+    }
 
-	if err := SaveToDatabase(&request); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save assistance request"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Assistance request submitted successfully"})
+    c.JSON(http.StatusOK, gin.H{"message": "Assistance request submitted successfully"})
 }
 
 func SaveToDatabase(request *model.AssistanceRequest) error {
-
-	if err := database.DB.Create(request).Error; err != nil {
-		return err
-	}
-	return nil
+    if err := database.DB.Create(request).Error; err != nil {
+        return err
+    }
+    return nil
 }
 
 func PostAlertPotentialDisaster(c *gin.Context) {
@@ -497,6 +495,7 @@ func DeleteDisaster(c *gin.Context) {
 
 	c.Status(http.StatusNoContent)
 }
+
 
 func UpdateDisaster(c *gin.Context) {
 	id := c.Param("id")
@@ -650,6 +649,27 @@ func DeleteReport(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Report deleted successfully"})
 }
+func DeletePotentialDReport(c *gin.Context) {
+    // Retrieve the disaster type from the URL parameter
+    disasterType := c.Param("disasterType")
+
+    // Check if the disaster type is empty
+    if disasterType == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Disaster type is required"})
+        return
+    }
+
+    // Perform the deletion of the first disaster report of the specified type from the database
+    if err := database.DB.Where("disaster_type = ?", disasterType).Delete(&model.AlertPotentialDisasterReport{}).Limit(1).Error; err != nil {
+        // If there's an error during deletion, return an error response
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete report"})
+        return
+    }
+
+    // If deletion is successful, return a success response
+    c.JSON(http.StatusOK, gin.H{"message": "First report of disaster type deleted successfully"})
+}
+
 
 func GetUserChatMessagesHandler(c *gin.Context) {
 	userId := c.Param("userId")
@@ -695,25 +715,21 @@ func GetVolunteerByCityHandler(c *gin.Context) {
 	// Get the city from the query parameter
 	city := c.Query("city")
 
-	// Check if there is any volunteer available in the specified city
-	var count int64
-	database.DB.Model(&model.Volunteer{}).Where("city = ? AND availability = ?", city, "Available").Count(&count)
-	if count == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "No available volunteer found for the specified city"})
+	// Check if the city is provided
+	if city == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "City parameter is missing"})
 		return
 	}
 
-	// Find the volunteer in the specified city
+	// Find the first volunteer in the specified city
 	var volunteer model.Volunteer
-	if err := database.DB.Where("city = ? AND availability = ?", city, "Available").First(&volunteer).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "No available volunteer found for the specified city"})
+	if err := database.DB.Where("city = ? AND availability = ?", city, "available").First(&volunteer).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No available volunteers found for the specified city"})
 		return
 	}
 
-	// Set the availability of the volunteer to "Not Available"
-	volunteer.Availability = "Not Available"
-
-	// Save the updated volunteer to the database
+	// Set the availability of the volunteer to "not-available"
+	volunteer.Availability = "not-available"
 	if err := database.DB.Save(&volunteer).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update volunteer availability"})
 		return
@@ -728,11 +744,15 @@ func GetVolunteerByCityHandler(c *gin.Context) {
 
 	// Return the volunteer's details along with updated availability
 	c.JSON(http.StatusOK, gin.H{
-		"name":         volunteer.Name,
-		"phone":        volunteer.MobileNumber,
-		"availability": volunteer.Availability,
+		"volunteer": gin.H{
+			"name":         volunteer.Name,
+			"phone":        volunteer.MobileNumber,
+			"availability": volunteer.Availability,
+		},
 	})
 }
+
+
 func ChangeAvailabilityHandler(c *gin.Context) {
     // Get the name of the volunteer from the request
     name := c.PostForm("name")
@@ -785,8 +805,7 @@ func SendMessageToVolunteer(_, _ string) error {
 	params := &twilioApi.CreateMessageParams{}
 	params.SetTo("whatsapp:+919508223747")
 	params.SetFrom("whatsapp:+14155238886")
-	params.SetBody("Hello From the admin!!  Can You provide the updates regarding the Disaster Report and When will you be available again to join?")
-	
+	params.SetBody("Hello this is the admin speaking !!  Can You provide the updates regarding the Disaster Report and When will you be available again to join??")
 
 	_, err := client.Api.CreateMessage(params)
 	if err != nil {
@@ -827,7 +846,7 @@ func sendWhatsAppMessage(_, _ string) error {
 	params := &twilioApi.CreateMessageParams{}
 	params.SetTo("whatsapp:+919508223747")
 	params.SetFrom("whatsapp:+14155238886")
-	params.SetBody("Hello From the admin!!  You should reach the location along with your team as soon as possible")
+	params.SetBody("Hello this message is from the admin.  You should reach the location along with your team as soon as possible.")
 
 	_, err := client.Api.CreateMessage(params)
 	if err != nil {
@@ -837,6 +856,45 @@ func sendWhatsAppMessage(_, _ string) error {
 
 	return nil
 }
+func SendMessageToUpdateHandler(c *gin.Context) {
+	// Get the name of the volunteer from the request
+	name := c.PostForm("name")
+
+	// Call the sendUpdateMessage function
+	err := sendUpdateMessage(name)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Send a success response
+	c.JSON(http.StatusOK, gin.H{"message": "WhatsApp update message sent successfully"})
+}
+
+func sendUpdateMessage(_ string) error {
+	accountSID := os.Getenv("TWILIO_ACCOUNT_SID")
+	authToken := os.Getenv("TWILIO_AUTH_TOKEN")
+
+	client := twilio.NewRestClientWithParams(twilio.ClientParams{
+		Username: accountSID,
+		Password: authToken,
+	})
+
+	params := &twilioApi.CreateMessageParams{}
+	params.SetTo("whatsapp:+919508223747")
+	params.SetFrom("whatsapp:+14155238886")
+	params.SetBody("Hello This is the Admin From the GO-CARE .Your Requested resources will reach to you shortly.Any more updates Visit the GO-CARE site and report. Thanks.")
+
+
+	_, err := client.Api.CreateMessage(params)
+	if err != nil {
+		fmt.Println("Error sending WhatsApp message:", err.Error())
+		return err
+	}
+
+	return nil
+}
+
 
 func GetDisasterTypesHandler(c *gin.Context) {
 	disasters, err := FetchDisasterssFromDatabase()
@@ -880,6 +938,28 @@ func DeleteReportHandler(c *gin.Context) {
 func DeleteReportFromDatabase(id string) error {
 	var report model.DisasterReport
 	result := database.DB.Where("id = ?", id).First(&report)
+	if result.Error != nil {
+		return result.Error
+	}
+	return database.DB.Delete(&report).Error
+}
+
+
+func DeleteeReportHandler(c *gin.Context) {
+
+	disasterType := c.Param("disasterType")
+
+	if err := DeleteeReportFromDatabase(disasterType); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete report"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Report deleted successfully"})
+}
+
+func DeleteeReportFromDatabase(disasterType string) error {
+	var report model.AlertPotentialDisasterReport
+	result := database.DB.Where("disasterType = ?", disasterType).First(&report)
 	if result.Error != nil {
 		return result.Error
 	}

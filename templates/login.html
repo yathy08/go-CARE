@@ -30,7 +30,7 @@
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 400px;
+      width: 480px;
       padding: 40px;
       background-color: rgba(100, 164, 184, 0.26);
       transform: translate(-50%, -50%);
@@ -117,9 +117,16 @@
       top: 50vh;
 
     }
+    .logo {
+            position: absolute;
+            top: -30px; /* Adjust the top position as needed */
+            left: -10px; /* Adjust the left position as needed */
+            height: 120px; /* Adjust the height as needed */
+        }
   </style>
   <div class="login-box">
     <h2>Login </h2>
+    <img class="logo" src="../Logos/Go-Care (2).png" alt="Logo">
     <p style="color: red; align-items: center;">{{.}}</p>
     <form method="post" action="/">
       <div class="user-box">

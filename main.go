@@ -72,6 +72,9 @@ func main() {
 	r.GET("/fetchAllDisasterss", routes.GetAllDisasterss)
 	r.DELETE("/deleteDisasterReport/:id", routes.DeleteReportHandler)
 	r.POST("/change-availability", routes.ChangeAvailabilityHandler)
+	r.POST("/sendUpdateMessage/:requestId", routes.SendMessageToUpdateHandler)
+    r.DELETE("/deleteeDisasterReport/:disasterType", routes.DeletePotentialDReport)
+
 
 	r.GET("/get-volunteer-details", routes.GetVolunteerDetailsHandler)
 

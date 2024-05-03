@@ -24,7 +24,7 @@
             height:800px;
             margin: 50px auto;
             padding: 20px;
-            background-color: rgba(255, 255, 255, 0.26);
+            background-color: rgba(34, 34, 34, 0.26);
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             font-weight: 600;
@@ -65,6 +65,14 @@
         form button:hover {
             background-color: #45a049;
         }
+        .logo {
+            
+            position: absolute;
+            top: -40px; /* Adjust the top position as needed */
+            left: -10px; /* Adjust the left position as needed */
+            height: 120px; /* Adjust the height as needed */
+        }
+
     </style>
 </head>
 <body>
@@ -72,6 +80,7 @@
 
     <div class="container">
         <h1>Disaster Report</h1>
+        <img class="logo" src="../Logos/Go-Care (2).png" alt="Logo">
         <!-- Form for disaster report -->
         <form id="reportForm">
             <!-- <form id="reportForm" method="post"> -->
@@ -197,7 +206,8 @@
             })
             .then(data => {
                 console.log('data', data); // Log the response
-                // Add a marker to the map
+                alert('Disaster Report alert has been submitted successfully and you can Check out the location in the map which will be displayed in the Recent activity section of The GO-Care user Dashboard , we will be reaching the location shortly and a message will be sent when the assistance is sent to your location.');
+                window.location.href = '/home';
                 return;
                 var marker = L.marker([latitude, longitude]).addTo(map);
 
